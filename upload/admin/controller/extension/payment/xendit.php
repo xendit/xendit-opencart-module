@@ -1,9 +1,11 @@
 <?php
 
-class ControllerExtensionPaymentXendit extends Controller {
+class ControllerExtensionPaymentXendit extends Controller
+{
     private $error = array();
 
-    public function index() {
+    public function index()
+    {
         $this->load->model('setting/setting');
         $this->load->language('extension/payment/xendit');
 
@@ -107,17 +109,37 @@ class ControllerExtensionPaymentXendit extends Controller {
         $this->response->setOutput($this->load->view('extension/payment/xendit', $data));
     }
 
-    public function install() {
+    public function install()
+    {
         $this->load->model('extension/payment/xendit');
         $this->model_extension_payment_xendit->install();
+
+        $this->load->model('setting/event');
+        $this->model_setting_event->addEvent('xendit', 'admin/view/common/column_left/before', 'extension/payment/xendit/cancelExpiredOrder');
     }
 
-    public function uninstall() {
+    public function uninstall()
+    {
         $this->load->model('extension/payment/xendit');
         $this->model_extension_payment_xendit->uninstall();
+
+        $this->load->model('setting/event');
+        $this->model_setting_event->deleteEventByCode('xendit');
     }
 
-    public function validate() {
+    public function validate()
+    {
         return true;
+    }
+
+    public function cancelExpiredOrder($eventRoute, &$data)
+    {
+        $data['menus'][] = array(
+            'id' => 'menu-xendit',
+            'icon' => 'fa fa-shopping-cart fa-fw',
+            'name' => 'Xendittt',
+            'href' => $this->url->link('extension/payment/xendit'),
+            'children' => array()
+        );
     }
 }

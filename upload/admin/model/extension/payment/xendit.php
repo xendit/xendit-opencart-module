@@ -4,6 +4,7 @@ class ModelExtensionPaymentXendit extends Model {
     public function install() {
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "xendit_order` (
             `xendit_invoice_id` varchar(255) NOT NULL PRIMARY KEY,
+            `xendit_expiry_date` datetime NOT NULL,
             `order_id` int(11) NOT NULL DEFAULT '0',
             `environment` varchar(5) NOT NULL DEFAULT 'test'
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;");
@@ -33,6 +34,16 @@ class ModelExtensionPaymentXendit extends Model {
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "xendit_order` WHERE `xendit_invoice_id` = '" . $invoice_id . "' LIMIT 1");
         if ($query->num_rows) {
             return $query->row;
+        } else {
+            return false;
+        }
+    }
+
+    public function getExpiredOrders() {
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "xendit_order` WHERE `xendit_expiry_date` < DATE(NOW())");
+
+        if ($query->num_rows) {
+			return $query->rows;
         } else {
             return false;
         }
