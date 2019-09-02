@@ -20,6 +20,9 @@ Currently this plugins support collecting payment through Xendit from these paym
 - BRI VA
 - Permata VA
 
+## Automatic Order Cancellation
+We provide functionality to automatically cancel order that is already expired on Xendit side. No need to do anything, we will handle it!
+
 ## Ownership
 
 Team: [TPI Team](https://www.draw.io/?state=%7B%22ids%22:%5B%221Vk1zqYgX2YqjJYieQ6qDPh0PhB2yAd0j%22%5D,%22action%22:%22open%22,%22userId%22:%22104938211257040552218%22%7D)

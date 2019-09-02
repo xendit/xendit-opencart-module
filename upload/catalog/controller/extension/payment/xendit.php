@@ -3,6 +3,8 @@
 require_once(DIR_SYSTEM . 'library/xendit.php');
 
 class ControllerExtensionPaymentXendit extends Controller {
+    const EXT_ID_PREFIX = 'xendit_opencart_';
+
     public function index() {
         $this->load->language('extension/payment/xendit');
 
@@ -31,7 +33,7 @@ class ControllerExtensionPaymentXendit extends Controller {
 
         $store_name = $this->config->get('config_name');
         $request_payload = array(
-            'external_id' => 'xendit_opencart_' . $order_id,
+            'external_id' => self::EXT_ID_PREFIX . $order_id,
             'amount' => (int)$order['total'],
             'payer_email' => $order['email'],
             'description' => 'Payment for order #' . $order_id . ' at ' . $store_name,
@@ -48,7 +50,7 @@ class ControllerExtensionPaymentXendit extends Controller {
         try {
             $response = Xendit::request($request_url, Xendit::METHOD_POST, $request_payload, $request_options);
 
-            $this->model_extension_payment_xendit->addOrder($order, $response['id'], $this->config->get('payment_xendit_environment'));
+            $this->model_extension_payment_xendit->addOrder($order, $response, $this->config->get('payment_xendit_environment'));
             $message = 'Invoice ID: ' . $response['id'] . '. Redirecting..';
             $this->model_checkout_order->addOrderHistory(
                 $order_id,
@@ -74,7 +76,7 @@ class ControllerExtensionPaymentXendit extends Controller {
             $response = json_decode(file_get_contents('php://input'), true);
             $invoice_id = $response['id'];
             $external_id = $response['external_id'];
-            $order_id = str_replace('xendit_opencart_', "", $external_id);
+            $order_id = str_replace(self::EXT_ID_PREFIX, "", $external_id);
 
             $api_key = $this->get_api_key();
             Xendit::set_secret_key($api_key['secret_key']);
@@ -121,6 +123,7 @@ class ControllerExtensionPaymentXendit extends Controller {
         if ($response['status'] === 'PAID' || $response['status'] === 'SETTLED') {
             $this->cart->clear();
             $message = 'Payment successful. Invoice id: ' . $response['id'];
+            $this->model_extension_payment_xendit->completeOrder($order_id);
             $this->model_checkout_order->addOrderHistory(
                 $order_id,
                 2,
