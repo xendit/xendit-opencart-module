@@ -123,6 +123,7 @@ class ControllerExtensionPaymentXendit extends Controller {
         if ($response['status'] === 'PAID' || $response['status'] === 'SETTLED') {
             $this->cart->clear();
             $message = 'Payment successful. Invoice id: ' . $response['id'];
+            $this->model_extension_payment_xendit->completeOrder($order_id);
             $this->model_checkout_order->addOrderHistory(
                 $order_id,
                 2,

@@ -167,7 +167,6 @@ class ControllerExtensionPaymentXendit extends Controller
 
         if (!empty($bulk_cancel_data)) {
             $response = $this->track_order_cancellation($bulk_cancel_data);
-            echo $response['status'];
         }
     }
 
@@ -177,11 +176,14 @@ class ControllerExtensionPaymentXendit extends Controller
         $request_payload = array(
             'invoice_data' => json_encode($payload)
         );
+        $request_options = array(
+            'store_name' => Xendit::DEFAULT_STORE_NAME
+        );
 
         $api_key = $this->get_api_key();
         Xendit::set_secret_key($api_key['secret_key']);
 
-        $response = Xendit::request($request_url, Xendit::METHOD_POST, $request_payload);
+        $response = Xendit::request($request_url, Xendit::METHOD_POST, $request_payload, $request_options);
         return $response;
     }
 
