@@ -9,6 +9,7 @@ This module has been tested against the following tech stacks:
 | --- | --- | --- | --- | --- |
 | 1.5.6 | Mac OSX | MySQL 5.5.62 | 5.4.45 | Apache 2.4.38 |
 | 3.0.3.2 | Ubuntu 18.04.2 LTS | MariaDB 10.1.39 | 7.2.12 | Apache 2.4.37 |
+| 2.0.3 | Ubuntu 18.04.2 LTS | MariaDB 10.3.20 | 7.1.33 | Apache 2.4.41 |
 
 ### How to
 To install this plugin, you just need to copy all the content inside the correct version of your Opencart store (e.g. `opencart3.0.x` for Opencart 3.0) folder to your root Opencart folder
