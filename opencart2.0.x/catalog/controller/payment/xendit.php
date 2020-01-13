@@ -16,7 +16,7 @@ class Controllerpaymentxendit extends Controller
         $data['button_confirm'] = $this->language->get('button_confirm');
         $data['text_loading'] = $this->language->get('text_loading');
 
-        return $this->load->view('default/template/payment/xendit.tpl', $data);
+        return $this->load->view('payment/xendit.tpl', $data);
     }
 
     public function process_payment()
