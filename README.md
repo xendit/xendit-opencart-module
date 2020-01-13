@@ -8,11 +8,14 @@ This module has been tested against the following tech stacks:
 | Opencart Version | OS | Database | PHP | Web Server |
 | --- | --- | --- | --- | --- |
 | 1.5.6 | Mac OSX | MySQL 5.5.62 | 5.4.45 | Apache 2.4.38 |
-| 3.0.3.2 | Ubuntu 18.04.2 LTS | MariaDB 10.1.39 | 7.2.12 | Apache 2.4.37 |
 | 2.0.3 | Ubuntu 18.04.2 LTS | MariaDB 10.3.20 | 7.1.33 | Apache 2.4.41 |
+| 2.1.0.2 | Ubuntu 18.04.2 LTS | MariaDB 10.3 | 7.3 | Nginx 1.16.1 |
+| 2.2.0 | Ubuntu 18.04.2 LTS | MariaDB 10.3 | 7.3 | Nginx 1.16.1 |
+| 2.3.0.2 | Ubuntu 18.04.2 LTS | MariaDB 10.3 | 7.3 | Nginx 1.16.1 |
+| 3.0.3.2 | Ubuntu 18.04.2 LTS | MariaDB 10.1.39 | 7.2.12 | Apache 2.4.37 |
 
 ### How to
-To install this plugin, you just need to copy all the content inside the correct version of your Opencart store (e.g. `opencart3.0.x` for Opencart 3.0) folder to your root Opencart folder
+To install this plugin, you just need to copy all the content inside the correct version of your Opencart store (e.g. `opencart3.0.x/upload` for Opencart 3.0) folder to your root Opencart folder
 
 ## Supported Payment Method
 Currently this plugins support collecting payment through Xendit from these payment channels:
