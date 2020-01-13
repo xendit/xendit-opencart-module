@@ -10,7 +10,7 @@ This module has been tested against the following tech stacks:
 | 3.0.3.2 | Ubuntu 18.04.2 LTS | MariaDB 10.1.39 | 7.2.12 | Apache 2.4.37 |
 
 ### How to
-To install this plugin, you just need to copy all the content inside `upload` folder to your root Opencart folder
+To install this plugin, you just need to copy all the content inside the correct version of your Opencart store (e.g. `opencart3.0.x` for Opencart 3.0) folder to your root Opencart folder
 
 ## Supported Payment Method
 Currently this plugins support collecting payment through Xendit from these payment channels:
