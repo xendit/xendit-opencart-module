@@ -7,6 +7,7 @@ This module has been tested against the following tech stacks:
 
 | Opencart Version | OS | Database | PHP | Web Server |
 | --- | --- | --- | --- | --- |
+| 1.5.6 | Mac OSX | MySQL 5.5.62 | 5.4.45 | Apache 2.4.38 |
 | 3.0.3.2 | Ubuntu 18.04.2 LTS | MariaDB 10.1.39 | 7.2.12 | Apache 2.4.37 |
 
 ### How to
