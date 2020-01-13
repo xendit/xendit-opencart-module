@@ -11,6 +11,10 @@ class Controllerpaymentxenditbniva extends Controller {
         $data['button_confirm'] = $this->language->get('button_confirm');
         $data['text_loading'] = $this->language->get('text_loading');
         
-        return $this->load->view('payment/xendit.tpl', $data);
+        if (version_compare(VERSION, '2.2', '>=') == true) {
+            return $this->load->view('payment/xendit.tpl', $data);
+        } else {
+            return $this->load->view('default/template/payment/xendit.tpl', $data);
+        }
     }
 }
