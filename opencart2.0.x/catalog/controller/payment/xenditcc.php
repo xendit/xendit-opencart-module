@@ -15,7 +15,11 @@ class Controllerpaymentxenditcc extends Controller {
         $data['button_confirm'] = $this->language->get('button_confirm');
         $data['text_loading'] = $this->language->get('text_loading');
 
-        return $this->load->view('default/template/payment/xenditcc.tpl', $data);
+        if (version_compare(VERSION, '2.2', '>=') == true) {
+            return $this->load->view('payment/xenditcc.tpl', $data);
+        } else {
+            return $this->load->view('default/template/payment/xenditcc.tpl', $data);
+        }
     }
 
     public function process_payment() {
@@ -164,7 +168,11 @@ class Controllerpaymentxenditcc extends Controller {
         $data['header'] = $this->load->controller('common/header');
         $data['checkout_url'] = $this->url->link('checkout/cart');
 
-        $this->response->setOutput($this->load->view('default/template/payment/xendit_failed.tpl', $data));
+        if (version_compare(VERSION, '2.2', '>=') == true) {
+            $this->response->setOutput($this->load->view('payment/xendit_failed.tpl', $data));
+        } else {
+            $this->response->setOutput($this->load->view('default/template/payment/xendit_failed.tpl', $data));
+        }
     }
 
     private function process_order($charge, $order_id) {

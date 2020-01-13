@@ -1,12 +1,12 @@
-<?php $header ?> <?php $column_left ?> <?php %column_right ?>
-<div class="container"><?php $content_top ?>
+<?php echo $header; ?> <?php echo $column_left; ?> <?php echo $column_right; ?>
+<div class="container"><?php echo $content_top; ?>
     <h2 class="text-center">Xendit payment failed!</h2>
-    <p class="text-center"><?php %text_failure ?></p>
-    <a href="<?php %checkout_url ?>">
+    <p class="text-center"><?php echo $text_failure; ?></p>
+    <a href="<?php echo $checkout_url; ?>">
         <div class="text-center">
             <button class="btn btn-primary">Back to cart</button>
         </div>
     </a>
-    <?php $content_bottom ?>
+    <?php echo $content_bottom; ?>
 </div>
-<?php $footer ?>
+<?php echo $footer; ?>
