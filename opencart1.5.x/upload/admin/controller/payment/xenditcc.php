@@ -46,16 +46,22 @@ class ControllerPaymentXenditCC extends Controller {
         $this->data['action'] = $this->url->link('payment/xenditcc', 'token=' . $this->session->data['token'], 'SSL');
         $this->data['cancel'] = $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL');
 
-        if (isset($this->request->post['payment_xenditcc_status'])) {
-            $this->data['xenditcc_status'] = $this->request->post['payment_xenditcc_status'];
+        if (isset($this->request->post['xenditcc_status'])) {
+            $this->data['xenditcc_status'] = $this->request->post['xenditcc_status'];
             $this->data['xendit_debug'] = 'request_post';
-        } elseif ($this->config->has('payment_xenditcc_status')) {
-            $this->data['xenditcc_status'] = $this->config->get('payment_xenditcc_status');
+        } elseif ($this->config->has('xenditcc_status')) {
+            $this->data['xenditcc_status'] = $this->config->get('xenditcc_status');
             $this->data['xendit_debug'] = 'have config';
         } else {
             $this->data['xenditcc_status'] = false;
             $this->data['xendit_debug'] = 'failover';
         }
+
+        if (isset($this->request->post['xenditcc_sort_order'])) {
+			$this->data['xenditcc_sort_order'] = $this->request->post['xenditcc_sort_order'];
+		} else {
+			$this->data['xenditcc_sort_order'] = $this->config->get('xenditcc_sort_order');
+		}
 
         $this->data['token'] = $this->session->data['token'];
         
