@@ -51,10 +51,10 @@ class ControllerPaymentXenditBNIVA extends Controller {
         $this->data['action'] = $this->url->link('payment/xendit' . self::XENDIT_CODE, 'token=' . $this->session->data['token'], 'SSL');
         $this->data['cancel'] = $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL');
 
-        if (isset($this->request->post['payment_xendit' . self::XENDIT_CODE . '_status'])) {
-            $this->data['xendit_status'] = $this->request->post['payment_xendit' . self::XENDIT_CODE . '_status'];
-        } elseif ($this->config->has('payment_xendit' . self::XENDIT_CODE . '_status')) {
-            $this->data['xendit_status'] = $this->config->get('payment_xendit' . self::XENDIT_CODE . '_status');
+        if (isset($this->request->post['xendit' . self::XENDIT_CODE . '_status'])) {
+            $this->data['xendit_status'] = $this->request->post['xendit' . self::XENDIT_CODE . '_status'];
+        } elseif ($this->config->has('xendit' . self::XENDIT_CODE . '_status')) {
+            $this->data['xendit_status'] = $this->config->get('xendit' . self::XENDIT_CODE . '_status');
         } else {
             $this->data['xendit_status'] = false;
         }

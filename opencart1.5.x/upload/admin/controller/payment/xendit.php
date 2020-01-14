@@ -57,10 +57,10 @@ class ControllerPaymentXendit extends Controller
         $this->data['action'] = $this->url->link('payment/xendit', 'token=' . $this->session->data['token'], 'SSL');
         $this->data['cancel'] = $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL');
 
-        if (isset($this->request->post['payment_xendit_status'])) {
-            $this->data['xendit_status'] = $this->request->post['payment_xendit_status'];
-        } elseif ($this->config->has('payment_xendit_status')) {
-            $this->data['xendit_status'] = $this->config->get('payment_xendit_status');
+        if (isset($this->request->post['xendit_status'])) {
+            $this->data['xendit_status'] = $this->request->post['xendit_status'];
+        } elseif ($this->config->has('xendit_status')) {
+            $this->data['xendit_status'] = $this->config->get('xendit_status');
         } else {
             $this->data['xendit_status'] = false;
         }
