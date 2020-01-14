@@ -70,6 +70,7 @@ class Xendit {
     {
         $headers = array();
         $headers[] = 'x-plugin-name: ' . self::PLUGIN_NAME;
+        $headers[] = 'x-plugin-version: ' . VERSION;
         $headers[] = 'x-plugin-store-name: ' . isset($options['store_name']) ? $options['store_name'] : self::DEFAULT_STORE_NAME;
         $headers[] = 'Content-Type: application/json';
 
