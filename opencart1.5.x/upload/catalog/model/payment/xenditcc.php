@@ -14,7 +14,7 @@ class ModelPaymentXenditCC extends Model {
                 'code'       => 'xenditcc',
                 'title'      => $this->language->get('text_title'),
                 'terms'      => '',
-                'sort_order' => $this->config->get('payment_' . $code . '_sort_order')
+                'sort_order' => $this->config->get($code . '_sort_order')
             );
         }
 

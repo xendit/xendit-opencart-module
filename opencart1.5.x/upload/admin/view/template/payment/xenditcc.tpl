@@ -39,6 +39,12 @@
                             </select>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Sort Order </label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" name="xenditcc_sort_order" value="<?php echo $xenditcc_sort_order; ?>" />
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>

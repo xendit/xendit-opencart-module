@@ -16,7 +16,6 @@
             type="button"
             value="<?php echo $button_confirm; ?>"
             id="button-confirm"
-            data-loading-text="<?php echo $text_loading; ?>"
             class="button"
         />
     </div>
@@ -28,13 +27,14 @@
             url: 'index.php?route=payment/xendit/process_payment',
             dataType: 'json',
             beforeSend: function() {
-                $('#button-confirm').button('loading');
+                $('#button-confirm').attr('disabled', true);
             },
             complete: function() {
-                $('#button-confirm').button('reset');
+                $('#button-confirm').attr('disabled', false);
             },
             success: function(json) {
                 if (json['error']) {
+                    $('#button-confirm').attr('disabled', false);
                     alert('Error: ' + json['error']);
                 }
 
@@ -43,6 +43,7 @@
                 }
             },
             error: function(xhr, ajaxOptions, thrownError) {
+                $('#button-confirm').attr('disabled', false);
                 alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
             }
         });

@@ -14,7 +14,7 @@ class ModelPaymentXenditBRIVA extends Model {
                 'code'       => $code,
                 'title'      => 'Bank Transfer BRI',
                 'terms'      => '',
-                'sort_order' => $this->config->get('payment_' . $code . '_sort_order')
+                'sort_order' => $this->config->get($code . '_sort_order')
             );
         }
 
