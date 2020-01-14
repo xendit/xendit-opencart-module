@@ -57,6 +57,12 @@ class ControllerPaymentXenditCC extends Controller {
             $this->data['xendit_debug'] = 'failover';
         }
 
+        if (isset($this->request->post['xenditcc_sort_order'])) {
+			$this->data['xenditcc_sort_order'] = $this->request->post['xenditcc_sort_order'];
+		} else {
+			$this->data['xenditcc_sort_order'] = $this->config->get('xenditcc_sort_order');
+		}
+
         $this->data['token'] = $this->session->data['token'];
         
         //Bootstrap 3

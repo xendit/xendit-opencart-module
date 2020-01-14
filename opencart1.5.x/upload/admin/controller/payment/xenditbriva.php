@@ -59,6 +59,12 @@ class ControllerPaymentXenditBRIVA extends Controller {
             $this->data['xendit_status'] = false;
         }
 
+        if (isset($this->request->post['xendit' . self::XENDIT_CODE . '_sort_order'])) {
+			$this->data['xendit_sort_order'] = $this->request->post['xendit' . self::XENDIT_CODE . '_sort_order'];
+		} else {
+			$this->data['xendit_sort_order'] = $this->config->get('xendit' . self::XENDIT_CODE . '_sort_order');
+		}
+
         $this->data['xendit_code'] = self::XENDIT_CODE;
 
         $this->data['token'] = $this->session->data['token'];

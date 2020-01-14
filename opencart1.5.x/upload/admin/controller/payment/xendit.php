@@ -127,19 +127,12 @@ class ControllerPaymentXendit extends Controller
     {
         $this->load->model('payment/xendit');
         $this->model_payment_xendit->install();
-
-        //$this->load->model('setting/event');
-        //$this->model_setting_event->addEvent('xendit', 'admin/view/common/column_left/before', 'payment/xendit/cancelExpiredOrder');
-        //$this->model_setting_event->addEvent('xendit', 'admin/view/common/header', 'payment/xendit/cancelExpiredOrder');
     }
 
     public function uninstall()
     {
         $this->load->model('payment/xendit');
         $this->model_payment_xendit->uninstall();
-
-        //$this->load->model('setting/event');
-        //$this->model_setting_event->deleteEventByCode('xendit');
     }
 
     public function validate()

@@ -65,7 +65,6 @@
             type="button"
             value="<?php echo $button_confirm; ?>"
             id="button-confirm"
-            data-loading-text="<?php echo $text_loading; ?>"
             class="button"
         />
     </div>
@@ -75,8 +74,6 @@
 <script type="text/javascript">
     var buttonConfirm = $('#button-confirm');
     buttonConfirm.on('click', function() {
-        buttonConfirm.button('loading');
-
         Xendit.setPublishableKey($('#xendit-public-key').val());
 
         var expDate = $('#card-expiry-date').val().split('/');
@@ -104,9 +101,11 @@
             return;
         }
 
+        buttonConfirm.attr('disabled', true);
+
         Xendit.card.createToken(data, function (err, response) {
             if (err) {
-                buttonConfirm.button('reset');
+                buttonConfirm.attr('disabled', false);
 
                 alert('Tokenization error. Error code:' + err.error_code);
                 return;
@@ -122,13 +121,14 @@
                     token_id: token
                 },
                 beforeSend: function() {
-                    $('#button-confirm').button('loading');
+                    buttonConfirm.attr('disabled', true);
                 },
                 complete: function() {
-                    $('#button-confirm').button('reset');
+                    buttonConfirm.attr('disabled', false);
                 },
                 success: function(json) {
                     if (json['error']) {
+                        buttonConfirm.attr('disabled', false);
                         alert('Error: ' + json['error']);
                     }
 
@@ -137,6 +137,7 @@
                     }
                 },
                 error: function(xhr, ajaxOptions, thrownError) {
+                    buttonConfirm.attr('disabled', false);
                     alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
                 }
             });

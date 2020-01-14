@@ -14,7 +14,7 @@ class ModelPaymentXenditPermataVA extends Model {
                 'code'       => $code,
                 'title'      => 'Bank Transfer Permata',
                 'terms'      => '',
-                'sort_order' => $this->config->get('payment_' . $code . '_sort_order')
+                'sort_order' => $this->config->get($code . '_sort_order')
             );
         }
 

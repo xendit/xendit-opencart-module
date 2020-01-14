@@ -14,7 +14,7 @@ class ModelPaymentXenditMandiriVA extends Model {
                 'code'       => $code,
                 'title'      => 'Bank Transfer Mandiri',
                 'terms'      => '',
-                'sort_order' => $this->config->get('payment_' . $code . '_sort_order')
+                'sort_order' => $this->config->get($code . '_sort_order')
             );
         }
 

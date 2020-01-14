@@ -14,7 +14,7 @@ class ModelPaymentXenditBNIVA extends Model {
                 'code'       => 'xenditbniva',
                 'title'      => 'Bank Transfer BNI',
                 'terms'      => '',
-                'sort_order' => $this->config->get('payment_' . $code . '_sort_order')
+                'sort_order' => $this->config->get($code . '_sort_order')
             );
         }
 
