@@ -48,19 +48,20 @@ class ControllerExtensionPaymentXenditCC extends Controller {
             $response = Xendit::request($request_url, Xendit::METHOD_POST, $request_payload, $request_options);
 
             if (isset($response['error_code'])) {
-                throw new Exception('Failed to authenticate, please try again');
+                $json['error'] = 'Failed to authenticate, please try again.';
             }
+            else {
+                $message = 'Authentication ID: ' . $response['id'] . '. Authenticating..';
+                $this->model_checkout_order->addOrderHistory(
+                    $order_id,
+                    1,
+                    $message,
+                    false
+                );
 
-            $message = 'Authentication ID: ' . $response['id'] . '. Authenticating..';
-            $this->model_checkout_order->addOrderHistory(
-                $order_id,
-                1,
-                $message,
-                false
-            );
-
-            $json['redirect'] = $response['redirect']['url'];
-
+                $json['redirect'] = $response['redirect']['url'];
+            }
+            
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode($json));
         } catch (Exception $e) {

@@ -39,12 +39,11 @@
                 $('#button-confirm').button('reset');
             },
             success: function(json) {
-                if(json['error_code']) {
-                    alert(json['message']);
-                } else {
-                    if (json['redirect']) {
-                        location = json['redirect'] + '#' + $('#invoice-hash').val();
-                    }
+                if (json['error']) {
+                    alert(json['error']);
+                }
+                if (json['redirect']) {
+                    location = json['redirect'] + '#' + $('#invoice-hash').val();
                 }
             },
             error: function(xhr, ajaxOptions, thrownError) {

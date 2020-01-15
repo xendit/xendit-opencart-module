@@ -27,7 +27,7 @@
         />
     </div>
 </div>
-<script type="text/javascript"><!--
+<script type="text/javascript">
     $('#button-confirm').on('click', function() {
         $.ajax({
             url: 'index.php?route=extension/payment/xendit/process_payment',
@@ -39,6 +39,9 @@
                 $('#button-confirm').button('reset');
             },
             success: function(json) {
+                if (json['error']) {
+                    alert(json['error']);
+                }
                 if (json['redirect']) {
                     location = json['redirect'] + '#' + $('#invoice-hash').val();
                 }
@@ -48,7 +51,7 @@
             }
         });
     });
-    //--></script>
+    </script>
 
 <style>
     .test_instructions {
