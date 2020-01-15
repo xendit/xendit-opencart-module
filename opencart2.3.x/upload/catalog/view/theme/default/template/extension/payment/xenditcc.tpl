@@ -109,7 +109,6 @@
                 buttonConfirm.button('reset');
 
                 alert('Tokenization error. Error code:' + err.error_code);
-
                 return;
             }
 
@@ -129,6 +128,9 @@
                     $('#button-confirm').button('reset');
                 },
                 success: function(json) {
+                    if (json['error']) {
+                        alert(json['error']);
+                    }
                     if (json['redirect']) {
                         location = json['redirect'];
                     }
