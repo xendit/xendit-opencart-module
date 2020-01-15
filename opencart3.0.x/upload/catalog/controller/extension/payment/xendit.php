@@ -50,16 +50,21 @@ class ControllerExtensionPaymentXendit extends Controller {
         try {
             $response = Xendit::request($request_url, Xendit::METHOD_POST, $request_payload, $request_options);
 
-            $this->model_extension_payment_xendit->addOrder($order, $response, $this->config->get('payment_xendit_environment'));
-            $message = 'Invoice ID: ' . $response['id'] . '. Redirecting..';
-            $this->model_checkout_order->addOrderHistory(
-                $order_id,
-                1,
-                $message,
-                false
-            );
+            if (isset($response['error_code'])) {
+                $json['error'] = $response['message'];
+            }
+            else {
+                $this->model_extension_payment_xendit->addOrder($order, $response, $this->config->get('payment_xendit_environment'));
+                $message = 'Invoice ID: ' . $response['id'] . '. Redirecting..';
+                $this->model_checkout_order->addOrderHistory(
+                    $order_id,
+                    1,
+                    $message,
+                    false
+                );
 
-            $json['redirect'] = $response['invoice_url'];
+                $json['redirect'] = $response['invoice_url'];
+            }
 
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode($json));
