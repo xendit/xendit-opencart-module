@@ -86,7 +86,7 @@
 </div>
 
 <script src="https://js.xendit.co/v1/xendit.min.js"></script>
-<script type="text/javascript"><!--
+<script type="text/javascript">
     var buttonConfirm = $('#button-confirm');
     buttonConfirm.on('click', function() {
         buttonConfirm.button('loading');
@@ -129,6 +129,9 @@
                     $('#button-confirm').button('reset');
                 },
                 success: function(json) {
+                    if (json['error']) {
+                        alert(json['error']);
+                    }
                     if (json['redirect']) {
                         location = json['redirect'];
                     }
@@ -139,7 +142,7 @@
             });
         });
     });
-    //--></script>
+</script>
 
 <style>
     .test_instructions {
