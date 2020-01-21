@@ -13,7 +13,7 @@ class ModelExtensionPaymentXenditcc extends Model {
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "xenditcc_refund` (
             `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY, 
             `xendit_charge_id` varchar(255) NOT NULL,
-            `xendit_refund_id` varchar(255) NOT NULL,
+            `xendit_refund_id` varchar(255),
             `order_id` int(11) NOT NULL DEFAULT '0',
             `amount` int NOT NULL,
             `environment` varchar(5) NOT NULL DEFAULT 'test',
