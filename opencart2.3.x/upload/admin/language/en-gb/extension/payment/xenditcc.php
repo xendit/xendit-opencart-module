@@ -24,4 +24,5 @@ $_['text_transaction_amount'] = 'Transaction Amount';
 $_['text_refunded_amount'] = 'Refunded Amount';
 $_['text_refund_info'] = 'Refund Payment';
 $_['text_confirm_refund'] = 'Are you sure you want to refund the payment?';
+$_['text_refund_ok_order'] = 'Refund successful';
 $_['button_refund'] = 'Refund';

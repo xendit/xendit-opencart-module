@@ -22,7 +22,7 @@
           type: 'POST',
           dataType: 'json',
           data: {'order_id': <?php echo $order_id; ?>, 'amount': $('#refund_amount').val()},
-          url: 'index.php?route=extension/payment/xendit/refund&token=<?php echo $token; ?>',
+          url: 'index.php?route=extension/payment/xenditcc/refund&token=<?php echo $token; ?>',
           beforeSend: function () {
             $('#btn_refund').hide();
             $('#refund_amount').hide();
@@ -31,28 +31,20 @@
           },
           success: function (data) {
             if (data.error == false) {
-              html = '';
-              html += '<tr>';
-              html += '<td class="text-left">' + data.data.created + '</td>';
-              html += '<td class="text-left">refund</td>';
-              html += '<td class="text-left">' + data.data.amount + '</td>';
-              html += '</tr>';
+              $('#total_refunded_amount').text(data.refunded_amount_formatted);
 
-              $('#total_refunded_amount').text(data.data.refunded_amount_formatted);
+              $('#btn_refund').show();
+              $('#refund_amount').val('').show();
 
-              if (data.data.refund_status == 1) {
-                $('.refund_text').text('<?php echo $text_yes; ?>');
-              } else {
-                $('#btn_refund').show();
-                $('#refund_amount').val(0.00).show();
-              }
-
+              $('#xendit_transaction_msg').empty().html('<i class="fa fa-check-circle"></i> ' + data.msg).fadeIn();
               if (data.msg != '') {
-                $('#xendit_transaction_msg').empty().html('<i class="fa fa-check-circle"></i> ' + data.msg).fadeIn();
+                alert(data.msg);
               }
             }
+
             if (data.error == true) {
               alert(data.msg);
+              $('#refund_amount').val('').show();
               $('#btn_refund').show();
             }
 

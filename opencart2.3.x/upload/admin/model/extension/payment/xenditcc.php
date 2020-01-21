@@ -33,6 +33,10 @@ class ModelExtensionPaymentXenditcc extends Model {
         return $this->db->getLastId();
     }
 
+    public function updateOrderRefundedAmount($order_id, $refunded_amount) {
+        $this->db->query("UPDATE `" . DB_PREFIX . "xenditcc_charge` SET `refunded_amount` = '" . (int)$refunded_amount . "' WHERE `order_id` = '" . (int)$order_id . "'");
+    }
+
     public function getCharge($order_id) {
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "xenditcc_charge` WHERE `order_id` = '" . $order_id . "' LIMIT 1");
         if ($query->num_rows) {
@@ -42,10 +46,15 @@ class ModelExtensionPaymentXenditcc extends Model {
         }
     }
 
-    public function getRefundByChargeId($charge_id) {
+    public function getRefundsByChargeId($charge_id) {
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "xenditcc_refund` WHERE `xendit_charge_id` = '" . $charge_id . "' LIMIT 1");
+
+        $transactions = array();
         if ($query->num_rows) {
-            return $query->row;
+            foreach ($query->rows as $row) {
+				$transactions[] = $row;
+			}
+			return $transactions;
         } else {
             return false;
         }
