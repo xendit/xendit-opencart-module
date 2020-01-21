@@ -70,7 +70,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
     }
 
     public function process_3ds() {
-        $this->load->model('extension/payment/xendit');
+        $this->load->model('extension/payment/xenditcc');
         $this->load->model('checkout/order');
         $this->load->model('extension/total/shipping');
         $this->load->language('extension/payment/xendit');
@@ -139,6 +139,34 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                     'store_name' => $store_name
                 )
             );
+            
+            if (isset($charge['error_code']) && $charge['error_code'] == 'EXTERNAL_ID_ALREADY_USED_ERROR') {
+              $charge_url = '/payment/xendit/credit-card/charges';
+              $charge_data = array(
+                  'token_id' => $token_id,
+                  'authentication_id' => $authentication_id,
+                  'amount' => $amount,
+                  'external_id' => 'opencart_xendit_' . $order_id . '_' . uniqid(),
+              );
+
+              $charge = Xendit::request(
+                  $charge_url,
+                  Xendit::METHOD_POST,
+                  $charge_data,
+                  array(
+                      'store_name' => $store_name
+                  )
+              );
+          }
+
+          if (isset($charge['error_code'])) {
+              $message = 'Charge error. Error code: ' . $charge['error_code'];
+              $this->cancel_order($order_id, $message);
+
+              $redir_url = $this->url->link('extension/payment/xenditcc/failure');
+              $this->response->redirect($redir_url);
+              return;
+          }
 
             $this->process_order($charge, $order_id);
         } catch (Exception $e) {
@@ -179,6 +207,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
             $message,
             false
         );
+        $this->model_extension_payment_xenditcc->addCharge($order_id, $charge, $this->config->get('payment_xendit_environment'));
 
         $redir_url = $this->url->link('checkout/success&');
         $this->response->redirect($redir_url);

@@ -69,10 +69,10 @@ class ControllerExtensionPaymentXenditCC extends Controller {
     public function validate()
     {
         if (!$this->user->hasPermission('modify', 'extension/payment/xenditcc')) {
-			$this->error['warning'] = $this->language->get('error_permission');
-		}
+            $this->error['warning'] = $this->language->get('error_permission');
+        }
 
-		return !$this->error;
+        return !$this->error;
     }
 
     public function install()
