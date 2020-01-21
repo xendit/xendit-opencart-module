@@ -40,8 +40,8 @@
         $.ajax({
           type: 'POST',
           dataType: 'json',
-          data: {'order_id': <?php echo $order_id; ?>, 'amount': $('#refund_amount').val()},
-          url: 'index.php?route=extension/payment/xenditcc/refund_manual&token=<?php echo $token; ?>',
+          data: {'order_id': <?php echo $order_id; ?>, 'amount': $('#refund_amount').val(), 'type': 'manual'},
+          url: 'index.php?route=extension/payment/xenditcc/refund&token=<?php echo $token; ?>',
           beforeSend: refundBeforeSend(),
           success: function (data) {
             refundSuccess(data);

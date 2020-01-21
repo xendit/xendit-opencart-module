@@ -161,95 +161,52 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 return;
             }
 
-            $api_key = $this->get_api_key();
-            Xendit::set_secret_key($api_key['secret_key']);
-            Xendit::set_public_key($api_key['public_key']);
-            $refund_url = '/payment/xendit/credit-card/charges/' . $charge_id . '/refund';
-            $refund = Xendit::request(
-                $refund_url,
-                Xendit::METHOD_POST,
-                array(
-                    'external_id' => 'opencart_xendit_' . $order_id . '_' . uniqid(),
-                    'amount' => (int)$this->request->post['amount']
-                )
-            );
+            switch ($type) {
+                case 'xendit':
+                    $api_key = $this->get_api_key();
+                    Xendit::set_secret_key($api_key['secret_key']);
+                    Xendit::set_public_key($api_key['public_key']);
+                    $refund_url = '/payment/xendit/credit-card/charges/' . $charge_id . '/refund';
+                    $refund = Xendit::request(
+                        $refund_url,
+                        Xendit::METHOD_POST,
+                        array(
+                            'external_id' => 'opencart_xendit_' . $order_id . '_' . uniqid(),
+                            'amount' => (int)$this->request->post['amount']
+                        )
+                    );
 
-            if (isset($refund['error_code'])) {
-				$json['error'] = true;
-				$json['msg'] = isset($refund['message']) && !empty($refund['message']) ? (string)$refund['message'] : 'Unable to refund';
-            } else {
-                $this->model_extension_payment_xenditcc->addRefund($order_id, $charge_id, $refund, $this->config->get('xendit_environment'));
-                $refunded_amount += $refund['amount'];
-                $this->model_extension_payment_xenditcc->updateOrderRefundedAmount($order_id, $refunded_amount);
-                $this->model_extension_payment_xenditcc->addOrderHistory(
-                    $order,
-                    $order_id,
-                    $order['order_status_id'],
-                    'Refund processed via Xendit at ' . date("Y/m/d h:i:sa") . " for " . $this->currency->format($refund['amount'], $order['currency_code'], false),
-                    false
-                );
-
-                if ($refunded_amount == $total_amount) {
+                    if (isset($refund['error_code'])) {
+                        $json['error'] = true;
+                        $json['msg'] = isset($refund['message']) && !empty($refund['message']) ? (string)$refund['message'] : 'Unable to refund';
+                        $this->response->setOutput(json_encode($json));
+                        return;
+                    } else {
+                        $this->model_extension_payment_xenditcc->addRefund($order_id, $charge_id, $refund, $this->config->get('xendit_environment'));
+                        $refunded_amount += $refund['amount'];
+                        $this->model_extension_payment_xenditcc->updateOrderRefundedAmount($order_id, $refunded_amount);
+                        $this->model_extension_payment_xenditcc->addOrderHistory(
+                            $order,
+                            $order_id,
+                            $order['order_status_id'],
+                            'Refund processed via Xendit at ' . date("Y/m/d h:i:sa") . " for " . $this->currency->format($refund['amount'], $order['currency_code'], false),
+                            false
+                        );
+                    }
+                    break;
+                default:
+                    $this->model_extension_payment_xenditcc->addRefundManual($order_id, $charge_id, $amount, $this->config->get('xendit_environment'));
+                    $refunded_amount += $amount;
+                    $this->model_extension_payment_xenditcc->updateOrderRefundedAmount($order_id, $refunded_amount);
                     $this->model_extension_payment_xenditcc->addOrderHistory(
                         $order,
                         $order_id,
-                        11,
-                        'Order is fully refunded',
+                        $order['order_status_id'],
+                        'Refund processed manually at ' . date("Y/m/d h:i:sa") . " for " . $this->currency->format($amount, $order['currency_code'], false),
                         false
                     );
-                }
-
-                $json['refunded_amount_formatted'] = $this->currency->format($refunded_amount, $order['currency_code'], false);
-                $json['error'] = false;
-                $json['msg'] = $this->language->get('text_refund_ok_order');
+                    break;
             }
-		} else {
-			$json['error'] = true;
-			$json['msg'] = 'Missing data';
-		}
-
-		$this->response->setOutput(json_encode($json));
-    }
-
-    /**
-     * Provide refund functionality. Act as another endpoint.
-     */
-    public function refund_manual()
-    {
-        $this->load->language('extension/payment/xenditcc');
-		$json = array();
-
-		if (isset($this->request->post['order_id']) && !empty($this->request->post['order_id'])&& isset($this->request->post['amount']) && !empty($this->request->post['amount'])) {
-            $this->load->model('extension/payment/xenditcc');
-            $this->load->model('sale/order');
-            
-            $order_id = $this->request->post['order_id'];
-            $amount = $this->request->post['amount'];
-
-            $order = $this->model_sale_order->getOrder($order_id);
-            $xenditcc_charge = $this->model_extension_payment_xenditcc->getCharge($order_id);
-
-            $total_amount = $xenditcc_charge['amount'];
-            $refunded_amount = empty($xenditcc_charge['refunded_amount']) ? 0 : $xenditcc_charge['refunded_amount'];
-            $charge_id = $xenditcc_charge['xendit_charge_id'];
-
-            if ($amount + $refunded_amount > $total_amount) {
-                $json['error'] = true;
-                $json['msg'] = 'Refund amount exceeded.';
-                $this->response->setOutput(json_encode($json));
-                return;
-            }
-
-            $this->model_extension_payment_xenditcc->addRefundManual($order_id, $charge_id, $amount, $this->config->get('xendit_environment'));
-            $refunded_amount += $amount;
-            $this->model_extension_payment_xenditcc->updateOrderRefundedAmount($order_id, $refunded_amount);
-            $this->model_extension_payment_xenditcc->addOrderHistory(
-                $order,
-                $order_id,
-                $order['order_status_id'],
-                'Refund processed manually at ' . date("Y/m/d h:i:sa") . " for " . $this->currency->format($amount, $order['currency_code'], false),
-                false
-            );
 
             if ($refunded_amount == $total_amount) {
                 $this->model_extension_payment_xenditcc->addOrderHistory(
