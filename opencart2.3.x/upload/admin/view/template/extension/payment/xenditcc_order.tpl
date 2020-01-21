@@ -15,7 +15,8 @@
 <form class="form-inline">
   <label class="sr-only" for="refund_amount">Refund Amount</label>
   <input type="text" width="10" id="refund_amount" class="form-control mb-2 mr-sm-2"/>
-  <a class="button btn btn-primary mb-2" id="btn_refund"><?php echo $button_refund; ?></a>
+  <a class="button btn btn-primary mb-2" id="btn_refund"><?php echo $button_refund_xendit; ?></a>
+  <a class="button btn btn-primary mb-2" id="btn_refund_manual"><?php echo $button_refund_manual; ?></a>
   <span class="btn btn-primary mb-2" id="img_loading_refund" style="display:none;"><i class="fa fa-cog fa-spin fa-lg"></i></span>
 </form>
 <script type="text/javascript">
@@ -24,33 +25,54 @@
         $.ajax({
           type: 'POST',
           dataType: 'json',
-          data: {'order_id': <?php echo $order_id; ?>, 'amount': $('#refund_amount').val()},
+          data: {'order_id': <?php echo $order_id; ?>, 'amount': $('#refund_amount').val(), 'type': 'xendit'},
           url: 'index.php?route=extension/payment/xenditcc/refund&token=<?php echo $token; ?>',
-          beforeSend: function () {
-            $('#btn_refund').hide();
-            $('#refund_amount').hide();
-            $('#img_loading_refund').show();
-            $('#xendit_transaction_msg').hide();
-          },
+          beforeSend: refundBeforeSend(),
           success: function (data) {
-            if (data.error == false) {
-              $('#total_refunded_amount').text(data.refunded_amount_formatted);
-
-              $('#btn_refund').show();
-              $('#refund_amount').val('').show();
-
-              $('#xendit_transaction_msg').empty().html('<i class="fa fa-check-circle"></i> ' + data.msg).fadeIn();
-            }
-
-            if (data.error == true) {
-              alert(data.msg);
-              $('#refund_amount').val('').show();
-              $('#btn_refund').show();
-            }
-
-            $('#img_loading_refund').hide();
+            refundSuccess(data);
           }
         });
       }
     });
+
+    $("#btn_refund_manual").click(function () {
+      if (confirm('<?php echo $text_confirm_refund; ?>')) {
+        $.ajax({
+          type: 'POST',
+          dataType: 'json',
+          data: {'order_id': <?php echo $order_id; ?>, 'amount': $('#refund_amount').val()},
+          url: 'index.php?route=extension/payment/xenditcc/refund_manual&token=<?php echo $token; ?>',
+          beforeSend: refundBeforeSend(),
+          success: function (data) {
+            refundSuccess(data);
+          }
+        });
+      }
+    });
+
+    function refundBeforeSend() {
+      $('#btn_refund').hide();
+      $('#refund_amount').hide();
+      $('#img_loading_refund').show();
+      $('#xendit_transaction_msg').hide();
+    }
+
+    function refundSuccess(data) {
+      if (data.error == false) {
+        $('#total_refunded_amount').text(data.refunded_amount_formatted);
+
+        $('#btn_refund').show();
+        $('#refund_amount').val('').show();
+
+        $('#xendit_transaction_msg').empty().html('<i class="fa fa-check-circle"></i> ' + data.msg).fadeIn();
+      }
+
+      if (data.error == true) {
+        alert(data.msg);
+        $('#refund_amount').val('').show();
+        $('#btn_refund').show();
+      }
+
+      $('#img_loading_refund').hide();
+    }
 </script>
