@@ -94,12 +94,12 @@ class ControllerExtensionPaymentXenditCC extends Controller {
     {
         if ($this->config->get('xenditcc_status')) {
             $this->load->model('sale/order');
-			$this->load->model('extension/payment/xenditcc');
+            $this->load->model('extension/payment/xenditcc');
 
             $order = $this->model_sale_order->getOrder($this->request->get['order_id']);
-			$xendit_order = $this->model_extension_payment_xenditcc->getCharge($this->request->get['order_id']);
+            $xendit_order = $this->model_extension_payment_xenditcc->getCharge($this->request->get['order_id']);
 
-			if (!empty($xendit_order)) {
+            if (!empty($xendit_order)) {
                 $this->load->language('extension/payment/xenditcc');
                 $data = array();
 
@@ -115,13 +115,13 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 $data['button_refund_xendit'] = $this->language->get('button_refund_xendit');
                 $data['button_refund_manual'] = $this->language->get('button_refund_manual');
 
-				$data['order_id'] = $this->request->get['order_id'];
+                $data['order_id'] = $this->request->get['order_id'];
                 $data['token'] = $this->request->get['token'];
                 $data['xendit_order'] = $xendit_order;
 
-				return $this->load->view('extension/payment/xenditcc_order', $data);
-			}
-		}
+                return $this->load->view('extension/payment/xenditcc_order', $data);
+            }
+        }
     }
 
     /**
@@ -130,9 +130,9 @@ class ControllerExtensionPaymentXenditCC extends Controller {
     public function refund()
     {
         $this->load->language('extension/payment/xenditcc');
-		$json = array();
+        $json = array();
 
-		if (
+        if (
             isset($this->request->post['order_id']) &&
             !empty($this->request->post['order_id']) &&
             isset($this->request->post['amount']) &&
@@ -221,12 +221,12 @@ class ControllerExtensionPaymentXenditCC extends Controller {
             $json['refunded_amount_formatted'] = $this->currency->format($refunded_amount, $order['currency_code'], false);
             $json['error'] = false;
             $json['msg'] = $this->language->get('text_refund_ok_order');
-		} else {
-			$json['error'] = true;
-			$json['msg'] = 'Missing data';
-		}
+        } else {
+            $json['error'] = true;
+            $json['msg'] = 'Missing data';
+        }
 
-		$this->response->setOutput(json_encode($json));
+        $this->response->setOutput(json_encode($json));
     }
 
     /**

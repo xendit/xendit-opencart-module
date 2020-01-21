@@ -44,14 +44,14 @@ class ModelExtensionPaymentXenditcc extends Model {
     }
     
     public function addOrderHistory($order_info, $order_id, $order_status_id, $comment = '') {
-		if ($order_info) {
-			// Update the DB with the new statuses
-			$this->db->query("UPDATE `" . DB_PREFIX . "order` SET order_status_id = '" . (int)$order_status_id . "', date_modified = NOW() WHERE order_id = '" . (int)$order_id . "'");
-			$this->db->query("INSERT INTO " . DB_PREFIX . "order_history SET order_id = '" . (int)$order_id . "', order_status_id = '" . (int)$order_status_id . "', notify = '" . (int)false . "', comment = '" . $this->db->escape($comment) . "', date_added = NOW()");
-			$order_history_id = $this->db->getLastId();
-			
-			return $order_history_id;
-		}
+        if ($order_info) {
+          // Update the DB with the new statuses
+          $this->db->query("UPDATE `" . DB_PREFIX . "order` SET order_status_id = '" . (int)$order_status_id . "', date_modified = NOW() WHERE order_id = '" . (int)$order_id . "'");
+          $this->db->query("INSERT INTO " . DB_PREFIX . "order_history SET order_id = '" . (int)$order_id . "', order_status_id = '" . (int)$order_status_id . "', notify = '" . (int)false . "', comment = '" . $this->db->escape($comment) . "', date_added = NOW()");
+          $order_history_id = $this->db->getLastId();
+          
+          return $order_history_id;
+        }
     }
 
     public function updateOrderRefundedAmount($order_id, $refunded_amount) {
@@ -73,9 +73,9 @@ class ModelExtensionPaymentXenditcc extends Model {
         $transactions = array();
         if ($query->num_rows) {
             foreach ($query->rows as $row) {
-				$transactions[] = $row;
-			}
-			return $transactions;
+                $transactions[] = $row;
+            }
+            return $transactions;
         } else {
             return false;
         }
