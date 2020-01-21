@@ -17,3 +17,11 @@ $_['entry_status']      = 'Status';
 
 // Button
 $_['button_save'] = 'Save';
+
+// Order
+$_['text_payment_info'] = 'Payment Information';
+$_['text_transaction_amount'] = 'Transaction Amount';
+$_['text_refunded_amount'] = 'Refunded Amount';
+$_['text_refund_info'] = 'Refund Payment';
+$_['text_confirm_refund'] = 'Are you sure you want to refund the payment?';
+$_['button_refund'] = 'Refund';

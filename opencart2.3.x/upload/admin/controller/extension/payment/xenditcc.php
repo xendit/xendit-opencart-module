@@ -3,7 +3,8 @@
 class ControllerExtensionPaymentXenditCC extends Controller {
     private $error = array();
 
-    public function index() {
+    public function index()
+    {
         $this->load->model('setting/setting');
         $this->load->language('extension/payment/xenditcc');
 
@@ -63,11 +64,70 @@ class ControllerExtensionPaymentXenditCC extends Controller {
         $this->response->setOutput($this->load->view('extension/payment/xenditcc', $data));
     }
 
-    public function validate() {
+    public function validate()
+    {
         if (!$this->user->hasPermission('modify', 'extension/payment/xenditcc')) {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
 		return !$this->error;
+    }
+
+    public function install()
+    {
+        $this->load->model('extension/payment/xenditcc');
+        $this->model_extension_payment_xenditcc->install();
+    }
+
+    public function uninstall()
+    {
+        $this->load->model('extension/payment/xenditcc');
+        $this->model_extension_payment_xenditcc->uninstall();
+    }
+
+    /**
+     * Display a new tab in order page with the provided data
+     */
+    public function order()
+    {
+        if ($this->config->get('xenditcc_status')) {
+            $this->load->model('sale/order');
+			$this->load->model('extension/payment/xenditcc');
+
+            $order = $this->model_sale_order->getOrder($this->request->get['order_id']);
+			$xendit_order = $this->model_extension_payment_xenditcc->getCharge($this->request->get['order_id']);
+
+			if (!empty($xendit_order)) {
+                $this->load->language('extension/payment/xenditcc');
+                $data = array();
+
+                $refunds = $this->model_extension_payment_xenditcc->getRefundByChargeId($xendit_order['xendit_charge_id']);
+
+				$xendit_order['amount_formatted'] = $this->currency->format($xendit_order['amount'], $order['currency_code'], false);
+                $xendit_order['refunded_amount_formatted'] = $this->currency->format($xendit_order['refunded_amount'], $order['currency_code'], false);
+
+                $data['text_payment_info'] = $this->language->get('text_payment_info');
+                $data['text_transaction_amount'] = $this->language->get('text_transaction_amount');
+                $data['text_refunded_amount'] = $this->language->get('text_refunded_amount');
+                $data['text_refund_info'] = $this->language->get('text_refund_info');
+                $data['text_confirm_refund'] = $this->language->get('text_confirm_refund');
+
+                $data['button_refund'] = $this->language->get('button_refund');
+
+				$data['order_id'] = $this->request->get['order_id'];
+                $data['token'] = $this->request->get['token'];
+                $data['xendit_order'] = $xendit_order;
+
+				return $this->load->view('extension/payment/xenditcc_order', $data);
+			}
+		}
+    }
+
+    /**
+     * Provide refund functionality
+     */
+    public function refund()
+    {
+        
     }
 }
