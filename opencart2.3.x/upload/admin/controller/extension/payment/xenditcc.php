@@ -131,7 +131,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
         $this->load->language('extension/payment/xenditcc');
 		$json = array();
 
-		if (isset($this->request->post['order_id']) && !empty($this->request->post['order_id'])) {
+		if (isset($this->request->post['order_id']) && !empty($this->request->post['order_id'])&& isset($this->request->post['amount']) && !empty($this->request->post['amount'])) {
             $this->load->model('extension/payment/xenditcc');
             $this->load->model('sale/order');
             

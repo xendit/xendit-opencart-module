@@ -12,9 +12,12 @@
 </table>
 
 <h3><?php echo $text_refund_info; ?></h3>
-<input type="text" width="10" id="refund_amount" /></br>
-<a class="button btn btn-primary" id="btn_refund"><?php echo $button_refund; ?></a>
-<span class="btn btn-primary" id="img_loading_refund" style="display:none;"><i class="fa fa-cog fa-spin fa-lg"></i></span>
+<form class="form-inline">
+  <label class="sr-only" for="refund_amount">Refund Amount</label>
+  <input type="text" width="10" id="refund_amount" class="form-control mb-2 mr-sm-2"/>
+  <a class="button btn btn-primary mb-2" id="btn_refund"><?php echo $button_refund; ?></a>
+  <span class="btn btn-primary mb-2" id="img_loading_refund" style="display:none;"><i class="fa fa-cog fa-spin fa-lg"></i></span>
+</form>
 <script type="text/javascript">
     $("#btn_refund").click(function () {
       if (confirm('<?php echo $text_confirm_refund; ?>')) {
@@ -37,9 +40,6 @@
               $('#refund_amount').val('').show();
 
               $('#xendit_transaction_msg').empty().html('<i class="fa fa-check-circle"></i> ' + data.msg).fadeIn();
-              if (data.msg != '') {
-                alert(data.msg);
-              }
             }
 
             if (data.error == true) {
