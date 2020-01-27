@@ -31,7 +31,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
 
         $store_name = $this->config->get('config_name');
         $request_payload = array(
-            'external_id' => 'opencart_xendit_' . $order_id,
+            'external_id' => 'opencart_xendit2.3_' . $order_id,
             'token_id' => $this->request->post['token_id'],
             'amount' => (int)$order['total'],
             'return_url' => $this->url->link('extension/payment/xenditcc/process_3ds')
@@ -130,7 +130,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 'token_id' => $token_id,
                 'authentication_id' => $authentication_id,
                 'amount' => $amount,
-                'external_id' => 'opencart_xendit_' . $order_id,
+                'external_id' => 'opencart_xendit2.3_' . $order_id,
             );
 
             $charge = Xendit::request(
