@@ -54,7 +54,7 @@ class ControllerPaymentXendit extends Controller {
                 $json['error'] = $response['message'];
             }
             else {
-                $this->model_payment_xendit->addOrder($order, $response, $this->config->get('payment_xendit_environment'));
+                $this->model_payment_xendit->addOrder($order, $response, $this->config->get('payment_xendit_environment'), 'invoice');
                 $message = 'Invoice ID: ' . $response['id'] . '. Redirecting..';
                 //Update order status to pending
                 $this->model_checkout_order->confirm(
@@ -165,6 +165,7 @@ class ControllerPaymentXendit extends Controller {
 
     private function cancel_order($order_id, $message) {
         $this->cart->clear();
+        $this->model_payment_xendit->cancelOrder($order_id);
         $this->model_checkout_order->update(
             $order_id,
             7,

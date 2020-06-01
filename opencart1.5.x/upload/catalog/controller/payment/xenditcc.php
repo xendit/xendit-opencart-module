@@ -53,6 +53,9 @@ class ControllerPaymentXenditCC extends Controller {
                 $json['error'] = $response['message'];
             }
             else {
+                $response['external_id'] = $request_payload['external_id']; //original response doesn't return external_id
+                $this->model_payment_xendit->addOrder($order, $response, $this->config->get('payment_xendit_environment'), 'cc');
+                
                 $message = 'Authentication ID: ' . $response['id'] . '. Authenticating..';
                 $this->model_checkout_order->confirm(
                     $order_id,
@@ -133,19 +136,6 @@ class ControllerPaymentXenditCC extends Controller {
                 )
             );
 
-            if ($charge['error_code'] == 'EXTERNAL_ID_ALREADY_USED_ERROR') {
-                $charge_data['external_id'] = 'opencart_xendit_' . $order_id . '-' . uniqid();
-
-                $charge = Xendit::request(
-                    $charge_url,
-                    Xendit::METHOD_POST,
-                    $charge_data,
-                    array(
-                        'store_name' => $store_name
-                    )
-                );
-            }
-
             $this->process_order($charge, $order_id, $charge_data);
         } catch (Exception $e) {
             $redir_url = $this->url->link('payment/xenditcc/failure');
@@ -185,7 +175,9 @@ class ControllerPaymentXenditCC extends Controller {
         
         $this->cart->clear();
 
-        $this->model_payment_xendit->addCCOrder($order_id, $charge, $this->config->get('payment_xendit_environment'));
+        $this->model_payment_xendit->completeOrder($order_id, 
+            ", `xendit_charge_id` = '". $charge['id'] . "'"
+        );
 
         $message = 'Payment successful. Charge ID: ' . $charge['id'];
         $this->model_checkout_order->update(
@@ -200,6 +192,7 @@ class ControllerPaymentXenditCC extends Controller {
     }
 
     private function cancel_order($order_id, $message) {
+        $this->model_payment_xendit->cancelOrder($order_id);
         $this->model_checkout_order->update(
             $order_id,
             7,
