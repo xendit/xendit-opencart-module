@@ -10,10 +10,20 @@ class ModelExtensionPaymentXendit extends Model
 
     public function addOrder($order_info, $invoice, $environment = 'test')
     {
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "xendit_order` SET `order_id` = '" . (int)$order_info['order_id'] . "',
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "xendit_order` SET 
+            `order_id` = '" . (int)$order_info['order_id'] . "',
             `status` = 'PENDING',
             `xendit_invoice_id` = '" . $invoice['id'] . "',
             `xendit_expiry_date` = '" . $invoice['expiry_date'] . "',
+            `environment` = '" . $environment . "'");
+        return $this->db->getLastId();
+    }
+
+    public function addCCOrder($order_id, $data, $environment = 'test')
+    {
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "xendit_charge` SET 
+            `order_id` = '" . (int)$order_id . "',
+            `xendit_charge_id` = '" . $data['id'] . "',
             `environment` = '" . $environment . "'");
         return $this->db->getLastId();
     }

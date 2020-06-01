@@ -140,6 +140,19 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 )
             );
 
+            if ($charge['error_code'] == 'EXTERNAL_ID_ALREADY_USED_ERROR') {
+                $charge_data['external_id'] = 'opencart_xendit_' . $order_id . '-' . uniqid();
+
+                $charge = Xendit::request(
+                    $charge_url,
+                    Xendit::METHOD_POST,
+                    $charge_data,
+                    array(
+                        'store_name' => $store_name
+                    )
+                );
+            }
+
             $this->process_order($charge, $order_id);
         } catch (Exception $e) {
             $redir_url = $this->url->link('extension/payment/xenditcc/failure');
@@ -172,7 +185,10 @@ class ControllerExtensionPaymentXenditCC extends Controller {
             return $this->cancel_order($order_id, $message);
         }
         $this->cart->clear();
-        $message = 'Payment successful. Charge id: ' . $charge['id'];
+
+        $this->model_extension_payment_xendit->addCCOrder($order_id, $charge, $this->config->get('payment_xendit_environment'));
+
+        $message = 'Payment successful. Charge ID: ' . $charge['id'];
         $this->model_checkout_order->addOrderHistory(
             $order_id,
             2,
