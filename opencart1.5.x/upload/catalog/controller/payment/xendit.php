@@ -54,8 +54,8 @@ class ControllerPaymentXendit extends Controller {
                 $json['error'] = $response['message'];
             }
             else {
+                $this->model_payment_xendit->addOrder($order, $response, $this->config->get('payment_xendit_environment'));
                 $message = 'Invoice ID: ' . $response['id'] . '. Redirecting..';
-                //$this->model_checkout_order->addOrder($order); //xendit add order
                 //Update order status to pending
                 $this->model_checkout_order->confirm(
                     $order_id,
@@ -146,8 +146,8 @@ class ControllerPaymentXendit extends Controller {
     private function process_order($response, $order_id) {
         if ($response['status'] === 'PAID' || $response['status'] === 'SETTLED') {
             $this->cart->clear();
-            $message = 'Payment successful. Invoice id: ' . $response['id'];
-            //$this->model_payment_xendit->completeOrder($order_id);
+            $message = 'Payment successful. Invoice ID: ' . $response['id'];
+            $this->model_payment_xendit->completeOrder($order_id);
 
             //Update order status to processing
             $this->model_checkout_order->update(
@@ -158,7 +158,7 @@ class ControllerPaymentXendit extends Controller {
             );
             $this->response->setOutput($message);
         } else {
-            $message = 'Invoice not paid or settled. Cancelling order. Charge id: ' . $response['id'];
+            $message = 'Invoice not paid or settled. Cancelling order. Charge ID: ' . $response['id'];
             return $this->cancel_order($order_id, $message);
         }
     }

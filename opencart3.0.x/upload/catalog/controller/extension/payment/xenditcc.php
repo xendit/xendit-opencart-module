@@ -181,7 +181,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
 
     private function process_order($charge, $order_id) {
         if ($charge['status'] !== 'CAPTURED') {
-            $message = 'Charge failed. Cancelling order. Charge id: ' . $charge['id'];
+            $message = 'Charge failed. Cancelling order. Charge ID: ' . $charge['id'];
             return $this->cancel_order($order_id, $message);
         }
         $this->cart->clear();
