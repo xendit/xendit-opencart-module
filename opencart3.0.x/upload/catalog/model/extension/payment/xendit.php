@@ -1,6 +1,6 @@
 <?php
 
-class ModelPaymentXendit extends Model
+class ModelExtensionPaymentXendit extends Model
 {
     public function getMethod($address, $total)
     {
