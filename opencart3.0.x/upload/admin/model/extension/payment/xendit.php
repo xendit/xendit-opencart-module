@@ -4,16 +4,16 @@ class ModelExtensionPaymentXendit extends Model {
     public function install() {
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "xendit_order` (
             `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            `order_id` int(11) NOT NULL DEFAULT '0',
+            `order_id` int(11) NOT NULL,
             `external_id` varchar(255) NOT NULL,
             `amount` decimal(10,2) NOT NULL,
             `payment_method` varchar(255) NOT NULL,
-            `xendit_invoice_id` varchar(255) NOT NULL,
-            `xendit_invoice_fee` decimal(10,2) NOT NULL,
-            `xendit_charge_id` varchar(255) NOT NULL,
-            `xendit_paid_date` datetime NOT NULL,
-            `xendit_expiry_date` datetime NOT NULL,
-            `xendit_cancelled_date` datetime NOT NULL,
+            `xendit_invoice_id` varchar(255),
+            `xendit_invoice_fee` decimal(10,2),
+            `xendit_charge_id` varchar(255),
+            `xendit_paid_date` datetime,
+            `xendit_expiry_date` datetime,
+            `xendit_cancelled_date` datetime,
             `status` varchar(150) NOT NULL,
             `environment` varchar(5) NOT NULL DEFAULT 'test'
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;");

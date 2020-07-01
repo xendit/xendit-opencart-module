@@ -30,14 +30,14 @@ class ModelExtensionPaymentXendit extends Model
     public function completeOrder($order_id, $extra = '')
     {
         $this->db->query("UPDATE `" . DB_PREFIX . "xendit_order` 
-                          SET `status` = 'COMPLETED', `xendit_paid_date` = NOW() $extra
+                          SET `status` = 'PAID', `xendit_paid_date` = NOW() $extra
                           WHERE `order_id` = '" . $order_id . "'");
     }
 
     public function cancelOrder($order_id)
     {
         $this->db->query("UPDATE `" . DB_PREFIX . "xendit_order` 
-                          SET `status` = 'FAILED', `xendit_cancelled_date` = NOW() 
+                          SET `status` = 'CANCELLED', `xendit_cancelled_date` = NOW() 
                           WHERE `order_id` = '" . $order_id . "'");
     }
 }
