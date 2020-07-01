@@ -3,7 +3,7 @@
 require_once(DIR_SYSTEM . 'library/xendit.php');
 
 class ControllerPaymentXendit extends Controller {
-    const EXT_ID_PREFIX = 'xendit_opencart_';
+    const EXT_ID_PREFIX = 'opencart-xendit-';
 
     public function index() {
         $this->load->language('payment/xendit');
