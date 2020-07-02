@@ -92,6 +92,11 @@ class Controllerpaymentxendit extends Controller
             $invoice_id = $response['id'];
             $external_id = $response['external_id'];
             $order_id = str_replace(self::EXT_ID_PREFIX, "", $external_id);
+            
+            if (!is_numeric($order_id)) {
+                $order_id = end(explode( '-', $external_id ));
+            }
+
             $order_info = $this->model_checkout_order->getOrder($order_id);
 
             if (empty($order_info)) {
