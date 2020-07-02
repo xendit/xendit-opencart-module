@@ -4,7 +4,7 @@ require_once(DIR_SYSTEM . 'library/xendit.php');
 
 class Controllerpaymentxenditcc extends Controller
 {
-    const EXT_ID_PREFIX = 'xendit-opencart-';
+    const EXT_ID_PREFIX = 'opencart-xendit-';
 
     public function index() {
         $this->load->language('payment/xenditcc');
@@ -151,14 +151,6 @@ class Controllerpaymentxenditcc extends Controller
                     'store_name' => $store_name
                 )
             );
-            
-            if ($charge['status'] !== 'CAPTURED') {
-                $message = 'Charge failed. Cancelling order. Charge id: ' . $charge['id'];
-                $this->cancel_order($order_id, $message);
-                $redir_url = $this->url->link('payment/xenditcc/failure');
-                $this->response->redirect($redir_url);
-                return;
-            }
 
             $this->process_order($charge, $order_id);
         } catch (Exception $e) {
@@ -193,8 +185,12 @@ class Controllerpaymentxenditcc extends Controller
     private function process_order($charge, $order_id) {
         if ($charge['status'] !== 'CAPTURED') {
             $message = 'Charge failed. Cancelling order. Charge id: ' . $charge['id'];
-            return $this->cancel_order($order_id, $message);
+            $this->cancel_order($order_id, $message);
+            $redir_url = $this->url->link('payment/xenditcc/failure');
+            $this->response->redirect($redir_url);
+            return;
         }
+
         $this->cart->clear();
 
         $this->model_payment_xendit->paidOrder($order_id, $charge['created'], array('xendit_charge_id' => $charge['id']));
