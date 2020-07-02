@@ -2,7 +2,6 @@
 
 class ModelExtensionPaymentXendit extends Model {
     public function install() {
-        // might not be the best way
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "xendit_order` (
             `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
             `order_id` int(11) NOT NULL DEFAULT '0',
