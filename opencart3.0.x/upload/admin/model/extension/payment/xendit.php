@@ -33,29 +33,6 @@ class ModelExtensionPaymentXendit extends Model {
         }
     }
 
-    public function getOrderByInvoiceId($invoice_id) {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "xendit_order` WHERE `xendit_invoice_id` = '" . $invoice_id . "' LIMIT 1");
-        if ($query->num_rows) {
-            return $query->row;
-        } else {
-            return false;
-        }
-    }
-
-    public function expireOrder($order_id) {
-        $this->db->query("UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'EXPIRED' WHERE `order_id` = '" . $order_id . "'");
-    }
-
-    public function getExpiredOrders() {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "xendit_order` WHERE `xendit_expiry_date` < NOW() AND `status` = 'PENDING'");
-
-        if ($query->num_rows) {
-            return $query->rows;
-        } else {
-            return false;
-        }
-    }
-
     public function addOrderHistory($order_info, $order_id, $order_status_id, $comment = '') {
 		if ($order_info) {
 			// Update the DB with the new statuses

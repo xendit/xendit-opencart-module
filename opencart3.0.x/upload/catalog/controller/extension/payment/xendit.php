@@ -78,10 +78,10 @@ class ControllerExtensionPaymentXendit extends Controller {
             $this->load->model('extension/payment/xendit');
             $this->load->model('checkout/order');
 
-            $response = json_decode(file_get_contents('php://input'), true);
-            $invoice_id = $response['id'];
-            $external_id = $response['external_id'];
-            $order_id = str_replace(self::EXT_ID_PREFIX, "", $external_id);
+            $original_response = json_decode(file_get_contents('php://input'), true);
+            $invoice_id = $original_response['id'];
+            $external_id = $original_response['external_id'];
+            $order_id = preg_replace('/[^0-9]/', '', $external_id);
             $order_info = $this->model_checkout_order->getOrder($order_id);
 
             if (empty($order_info)) {
@@ -119,7 +119,7 @@ class ControllerExtensionPaymentXendit extends Controller {
                     return;
                 }
 
-                return $this->process_order($response, $order_id);
+                return $this->process_order($response, $original_response, $order_id);
             } catch (Exception $e) {
                 echo 'something';
             }
@@ -142,11 +142,15 @@ class ControllerExtensionPaymentXendit extends Controller {
         }
     }
 
-    private function process_order($response, $order_id) {
+    private function process_order($response, $original_response, $order_id) {
         if ($response['status'] === 'PAID' || $response['status'] === 'SETTLED') {
             $this->cart->clear();
             $message = 'Payment successful. Invoice ID: ' . $response['id'];
-            $this->model_extension_payment_xendit->completeOrder($order_id);
+            
+            $this->model_extension_payment_xendit->paidOrder($order_id, $response['paid_at'], array(
+                'xendit_invoice_fee' => $original_response['fees_paid_amount']
+            ));
+            
             $this->model_checkout_order->addOrderHistory(
                 $order_id,
                 2,
@@ -155,7 +159,7 @@ class ControllerExtensionPaymentXendit extends Controller {
             );
             $this->response->setOutput($message);
         } else {
-            $message = 'Invoice not paid or settled. Cancelling order. Charge ID: ' . $response['id'];
+            $message = 'Invoice not paid or settled. Cancelling order. Invoice ID: ' . $response['id'];
             return $this->cancel_order($order_id, $message);
         }
     }

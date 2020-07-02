@@ -3,6 +3,8 @@
 require_once(DIR_SYSTEM . 'library/xendit.php');
 
 class ControllerPaymentXenditCC extends Controller {
+    const EXT_ID_PREFIX = 'opencart-xendit-';
+
     public function index() {
         $this->load->language('payment/xenditcc');
 
@@ -31,7 +33,7 @@ class ControllerPaymentXenditCC extends Controller {
 
         $store_name = $this->config->get('config_name');
         $request_payload = array(
-            'external_id' => 'opencart-xendit-' . $order_id,
+            'external_id' => self::EXT_ID_PREFIX . $order_id,
             'token_id' => $this->request->post['token_id'],
             'amount' => (int)$order['total'],
             'return_url' => $this->url->link('payment/xenditcc/process_3ds')
@@ -124,7 +126,7 @@ class ControllerPaymentXenditCC extends Controller {
                 'token_id' => $token_id,
                 'authentication_id' => $authentication_id,
                 'amount' => $amount,
-                'external_id' => 'opencart-xendit-' . $order_id,
+                'external_id' => self::EXT_ID_PREFIX . $order_id,
             );
 
             $charge = Xendit::request(
@@ -164,20 +166,18 @@ class ControllerPaymentXenditCC extends Controller {
     }
 
     private function process_order($charge, $order_id, $charge_data) {
-        if (isset($charge['error_code'])) {
-            $message = "Charge failed. Cancelling order.\nReason: " . $charge['message'];
-            return $this->cancel_order($order_id, $message);
-        }
-        else if ($charge['status'] !== 'CAPTURED') {
+        if ($charge['status'] !== 'CAPTURED') {
             $message = 'Charge failed. Cancelling order. Charge ID: ' . $charge['id'];
-            return $this->cancel_order($order_id, $message);
+            $this->cancel_order($order_id, $message);
+
+            $redir_url = $this->url->link('payment/xenditcc/failure');
+            $this->response->redirect($redir_url);
+            return;
         }
         
         $this->cart->clear();
 
-        $this->model_payment_xendit->completeOrder($order_id, 
-            ", `xendit_charge_id` = '". $charge['id'] . "'"
-        );
+        $this->model_payment_xendit->paidOrder($order_id, $charge['created'], array('xendit_charge_id' => $charge['id']));
 
         $message = 'Payment successful. Charge ID: ' . $charge['id'];
         $this->model_checkout_order->update(
