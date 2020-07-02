@@ -4,7 +4,7 @@ require_once(DIR_SYSTEM . 'library/xendit.php');
 
 class Controllerpaymentxendit extends Controller
 {
-    const EXT_ID_PREFIX = 'opencart-xendit-';
+    const EXT_ID_PREFIX = 'xendit-opencart-';
 
     public function index()
     {
