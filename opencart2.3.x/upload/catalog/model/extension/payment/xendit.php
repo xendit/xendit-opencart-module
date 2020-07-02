@@ -8,30 +8,45 @@ class ModelExtensionPaymentXendit extends Model
         return $method_data;
     }
 
-    public function addOrder($order_info, $invoice, $environment = 'test')
+    public function addOrder($order_info, $data, $environment = 'test', $type = 'invoice')
     {
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "xendit_order` SET `order_id` = '" . (int)$order_info['order_id'] . "',
-            `status` = 'PENDING',
-            `xendit_invoice_id` = '" . $invoice['id'] . "',
-            `amount` = '" . $invoice['amount'] . "',
-            `xendit_expiry_date` = '" . $invoice['expiry_date'] . "',
-            `external_id` = '" . $invoice['external_id'] . "',
-            `payment_method` = '" . $order_info['payment_method'] . "',
-            `environment` = '" . $environment . "'");
+        $query = "INSERT INTO `" . DB_PREFIX . "xendit_order`
+                    SET `order_id` = '" . (int)$order_info['order_id'] . "',
+                        `status` = 'PENDING',
+                        `external_id` = '" . $data['external_id'] . "',
+                        `amount` = '" . $data['amount'] . "',
+                        `payment_method` = '" . $order_info['payment_method'] . "',
+                        `environment` = '" . $environment . "'";
+
+        if ($type == 'invoice') {
+            $query .= ",
+                        `xendit_invoice_id`     = '" . $data['id'] . "',
+                        `xendit_expiry_date`    = '" . $data['expiry_date'] . "'";
+        }
+
+        $this->db->query($query);
+
         return $this->db->getLastId();
     }
 
-    public function completeOrder($order_id, $invoice)
+    public function paidOrder($order_id, $date, $extra = [])
     {
-        $this->db->query("UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'PAID',
-            `xendit_paid_date` = ' " . $invoice['paid_at'] . " '
-            WHERE `order_id` = '" . $order_id . "'");
+        $date = date("Y-m-d H:i:s", strtotime($date)); 
+        $query = "UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'PAID', `xendit_paid_date` = '" . $date . "'";
+
+        foreach ($extra as $key => $value) {
+            $query .= ", `".$key."` = '".$value."'";
+        }
+
+        $query .= " WHERE `order_id` = '" . $order_id . "'";
+        $this->db->query($query);
     }
 
     public function cancelOrder($order_id)
     {
+        $date = gmdate("Y-m-d H:i:s");
         $this->db->query("UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'CANCELLED',
-            `xendit_cancelled_date` = NOW()
+            `xendit_cancelled_date` = '" . $date . "'
             WHERE `order_id` = '" . $order_id . "'");
     }
 }
