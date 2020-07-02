@@ -3,6 +3,8 @@
 require_once(DIR_SYSTEM . 'library/xendit.php');
 
 class ControllerPaymentXenditCC extends Controller {
+    const EXT_ID_PREFIX = 'opencart-xendit-';
+
     public function index() {
         $this->load->language('payment/xenditcc');
 
@@ -31,7 +33,7 @@ class ControllerPaymentXenditCC extends Controller {
 
         $store_name = $this->config->get('config_name');
         $request_payload = array(
-            'external_id' => 'opencart_xendit_' . $order_id,
+            'external_id' => self::EXT_ID_PREFIX . $order_id,
             'token_id' => $this->request->post['token_id'],
             'amount' => (int)$order['total'],
             'return_url' => $this->url->link('payment/xenditcc/process_3ds')
@@ -53,6 +55,9 @@ class ControllerPaymentXenditCC extends Controller {
                 $json['error'] = $response['message'];
             }
             else {
+                $response['external_id'] = $request_payload['external_id']; //original response doesn't return external_id
+                $this->model_payment_xendit->addOrder($order, $response, $this->config->get('payment_xendit_environment'), 'cc');
+                
                 $message = 'Authentication ID: ' . $response['id'] . '. Authenticating..';
                 $this->model_checkout_order->confirm(
                     $order_id,
@@ -72,9 +77,9 @@ class ControllerPaymentXenditCC extends Controller {
     }
 
     public function process_3ds() {
-        //$this->load->model('payment/xendit');
+        $this->load->model('payment/xendit');
         $this->load->model('checkout/order');
-        //$this->load->language('payment/xendit');
+        $this->load->language('payment/xendit');
 
         try {
             $order_id = $this->session->data['order_id'];
@@ -121,7 +126,7 @@ class ControllerPaymentXenditCC extends Controller {
                 'token_id' => $token_id,
                 'authentication_id' => $authentication_id,
                 'amount' => $amount,
-                'external_id' => 'opencart_xendit_' . $order_id,
+                'external_id' => self::EXT_ID_PREFIX . $order_id,
             );
 
             $charge = Xendit::request(
@@ -161,17 +166,20 @@ class ControllerPaymentXenditCC extends Controller {
     }
 
     private function process_order($charge, $order_id, $charge_data) {
-        if (isset($charge['error_code'])) {
-            $message = "Charge failed. Cancelling order.\nReason: " . $charge['message'];
-            return $this->cancel_order($order_id, $message);
-        }
-        else if ($charge['status'] !== 'CAPTURED') {
-            $message = 'Charge failed. Cancelling order. Charge id: ' . $charge['id'];
-            return $this->cancel_order($order_id, $message);
+        if ($charge['status'] !== 'CAPTURED') {
+            $message = 'Charge failed. Cancelling order. Charge ID: ' . $charge['id'];
+            $this->cancel_order($order_id, $message);
+
+            $redir_url = $this->url->link('payment/xenditcc/failure');
+            $this->response->redirect($redir_url);
+            return;
         }
         
         $this->cart->clear();
-        $message = 'Payment successful. Charge id: ' . $charge['id'];
+
+        $this->model_payment_xendit->paidOrder($order_id, $charge['created'], array('xendit_charge_id' => $charge['id']));
+
+        $message = 'Payment successful. Charge ID: ' . $charge['id'];
         $this->model_checkout_order->update(
             $order_id,
             2,
@@ -184,6 +192,7 @@ class ControllerPaymentXenditCC extends Controller {
     }
 
     private function cancel_order($order_id, $message) {
+        $this->model_payment_xendit->cancelOrder($order_id);
         $this->model_checkout_order->update(
             $order_id,
             7,
