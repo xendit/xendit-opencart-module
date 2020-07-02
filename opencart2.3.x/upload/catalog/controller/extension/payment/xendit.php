@@ -156,7 +156,7 @@ class ControllerExtensionPaymentXendit extends Controller {
             $this->response->setOutput($message);
         } else {
             $message = 'Invoice not paid or settled. Cancelling order. Charge id: ' . $response['id'];
-            $this->model_extension_payment_xendit->cancelOrder($order_id, $response);
+            $this->model_extension_payment_xendit->cancelOrder($order_id);
             return $this->cancel_order($order_id, $message);
         }
     }

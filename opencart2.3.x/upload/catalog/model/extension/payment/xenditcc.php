@@ -20,17 +20,27 @@ class ModelExtensionPaymentXenditCC extends Model {
         return $method_data;
     }
     
-    public function addOrder($order_info, $charge_id, $environment = 'test')
+    public function addOrder($order_info, $environment = 'test')
     {
         $this->db->query("INSERT INTO `" . DB_PREFIX . "xendit_order` SET `order_id` = '" . (int)$order_info['order_id'] . "',
             `status` = 'PENDING',
-            `xendit_charge_id` = '" . $charge_id . "',
+            `amount` = '" . (int)$order_info['total'] . "',
+            `payment_method` = '" . $order_info['payment_method'] . "',
             `environment` = '" . $environment . "'");
         return $this->db->getLastId();
     }
 
+    public function storeChargeId($order_id, $charge)
+    {
+        $this->db->query("UPDATE `" . DB_PREFIX . "xendit_order` SET `xendit_charge_id` = '" . $charge['id'] . "',
+            `external_id` = '" . $charge['external_id'] . "'
+            WHERE `order_id` = '" . $order_id . "'");
+    }
+
     public function completeOrder($order_id)
     {
-        $this->db->query("UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'PAID' WHERE `order_id` = '" . $order_id . "'");
+        $this->db->query("UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'PAID',
+            `xendit_paid_date` = NOW()
+            WHERE `order_id` = '" . $order_id . "'");
     }
 }

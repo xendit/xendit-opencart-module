@@ -19,7 +19,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
     }
 
     public function process_payment() {
-        $this->load->model('extension/payment/xendit');
+        $this->load->model('extension/payment/xenditcc');
         $this->load->model('checkout/order');
         $this->load->model('extension/total/shipping');
         $this->load->language('extension/payment/xendit');
@@ -60,6 +60,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                     $message,
                     false
                 );
+                $this->model_extension_payment_xenditcc->addOrder($order, $this->config->get('xendit_environment'));
 
                 $json['redirect'] = $response['redirect']['url'];
             }
@@ -73,6 +74,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
 
     public function process_3ds() {
         $this->load->model('extension/payment/xendit');
+        $this->load->model('extension/payment/xenditcc');
         $this->load->model('checkout/order');
         $this->load->model('extension/total/shipping');
         $this->load->language('extension/payment/xendit');
@@ -169,9 +171,14 @@ class ControllerExtensionPaymentXenditCC extends Controller {
     }
 
     private function process_order($charge, $order_id) {
+        $this->model_extension_payment_xenditcc->storeChargeId($order_id, $charge);
         if ($charge['status'] !== 'CAPTURED') {
             $message = 'Charge failed. Cancelling order. Charge id: ' . $charge['id'];
-            return $this->cancel_order($order_id, $message);
+            $this->cancel_order($order_id, $message);
+
+            $redir_url = $this->url->link('extension/payment/xenditcc/failure');
+            $this->response->redirect($redir_url);
+            return;
         }
         $this->cart->clear();
         $message = 'Payment successful. Charge id: ' . $charge['id'];
@@ -181,12 +188,14 @@ class ControllerExtensionPaymentXenditCC extends Controller {
             $message,
             false
         );
+        $this->model_extension_payment_xenditcc->completeOrder($order_id);
 
         $redir_url = $this->url->link('checkout/success&');
         $this->response->redirect($redir_url);
     }
 
     private function cancel_order($order_id, $message) {
+        $this->model_extension_payment_xendit->cancelOrder($order_id, $this->config->get('xendit_environment'));
         $this->model_checkout_order->addOrderHistory(
             $order_id,
             7,
