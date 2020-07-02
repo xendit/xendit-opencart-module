@@ -126,61 +126,6 @@ class ControllerExtensionPaymentXendit extends Controller
         return true;
     }
 
-    public function cancelExpiredOrder($eventRoute, &$data)
-    {
-        $this->load->model('extension/payment/xendit');
-        $this->load->model('sale/order');
-
-        $bulk_cancel_data = array();
-        $expired_orders = $this->model_extension_payment_xendit->getExpiredOrders();
-
-        if ($expired_orders) {
-            foreach ($expired_orders as $xendit_order) {
-                $order_id = $xendit_order['order_id'];
-                $order = $this->model_sale_order->getOrder(
-                    $order_id
-                );
-    
-                $bulk_cancel_data[] = array(
-                    'id' => $xendit_order['xendit_invoice_id'],
-                    'expiry_date' => $xendit_order['xendit_expiry_date'],
-                    'order_number' => $order_id,
-                    'amount' => (int)$order['total']
-                );
-    
-                $this->model_extension_payment_xendit->expireOrder($order_id);
-                $this->model_extension_payment_xendit->addOrderHistory(
-                    $order,
-                    $order_id,
-                    7,
-                    'Order cancelled because Xendit invoice expired',
-                    false
-                );
-            }
-        }
-
-        if (!empty($bulk_cancel_data)) {
-            $response = $this->track_order_cancellation($bulk_cancel_data);
-        }
-    }
-
-    private function track_order_cancellation($payload)
-    {
-        $request_url = '/payment/xendit/invoice/bulk-cancel';
-        $request_payload = array(
-            'invoice_data' => json_encode($payload)
-        );
-        $request_options = array(
-            'store_name' => Xendit::DEFAULT_STORE_NAME
-        );
-
-        $api_key = $this->get_api_key();
-        Xendit::set_secret_key($api_key['secret_key']);
-
-        $response = Xendit::request($request_url, Xendit::METHOD_POST, $request_payload, $request_options);
-        return $response;
-    }
-
     private function get_api_key()
     {
         if ($this->config->get('payment_xendit_environment') === 'live') {
