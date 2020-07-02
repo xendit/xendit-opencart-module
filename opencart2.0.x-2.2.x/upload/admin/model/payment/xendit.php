@@ -21,26 +21,11 @@ class Modelpaymentxendit extends Model {
 
     public function uninstall() {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "xendit_order`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "xendit_charge`");
     }
 
     public function getOrder($order_id) {
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "xendit_order` WHERE `order_id` = '" . $order_id . "' LIMIT 1");
-
-        return ($query->num_rows) ? $query->rows : false;
-    }
-
-    public function getOrderByInvoiceId($invoice_id) {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "xendit_order` WHERE `xendit_invoice_id` = '" . $invoice_id . "' LIMIT 1");
-
-        return ($query->num_rows) ? $query->rows : false;
-    }
-
-    public function expireOrder($order_id) {
-        $this->db->query("UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'EXPIRED' WHERE `order_id` = '" . $order_id . "'");
-    }
-
-    public function getExpiredOrders() {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "xendit_order` WHERE `xendit_expiry_date` < NOW() AND `status` = 'PENDING'");
 
         return ($query->num_rows) ? $query->rows : false;
     }

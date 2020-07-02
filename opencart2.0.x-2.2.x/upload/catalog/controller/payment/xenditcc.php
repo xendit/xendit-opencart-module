@@ -151,6 +151,14 @@ class Controllerpaymentxenditcc extends Controller
                     'store_name' => $store_name
                 )
             );
+            
+            if ($charge['status'] !== 'CAPTURED') {
+                $message = 'Charge failed. Cancelling order. Charge id: ' . $charge['id'];
+                $this->cancel_order($order_id, $message);
+                $redir_url = $this->url->link('payment/xenditcc/failure');
+                $this->response->redirect($redir_url);
+                return;
+            }
 
             $this->process_order($charge, $order_id);
         } catch (Exception $e) {
@@ -188,8 +196,8 @@ class Controllerpaymentxenditcc extends Controller
             return $this->cancel_order($order_id, $message);
         }
         $this->cart->clear();
-        
-        $this->model_payment_xendit->paidOrder($order_id, array('xendit_charge_id' => $charge['id']));
+
+        $this->model_payment_xendit->paidOrder($order_id, $charge['created'], array('xendit_charge_id' => $charge['id']));
         
         $message = 'Payment successful. Charge id: ' . $charge['id'];
         $this->model_checkout_order->addOrderHistory(

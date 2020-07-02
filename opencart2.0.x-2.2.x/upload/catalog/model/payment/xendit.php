@@ -29,14 +29,13 @@ class Modelpaymentxendit extends Model
         return $this->db->getLastId();
     }
 
-    public function paidOrder($order_id, $extra = [])
+    public function paidOrder($order_id, $date, $extra = [])
     {
-        $query = "UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'PAID', `xendit_paid_date` = NOW()";
+        $date = date("Y-m-d H:i:s", strtotime($date)); 
+        $query = "UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'PAID', `xendit_paid_date` = '".$date."'";
 
-        if (count($extra) > 0) {
-            foreach ($extra as $key => $value) {
-                $query .= ", `".$key."` = '".$value."'";
-            }
+        foreach ($extra as $key => $value) {
+            $query .= ", `".$key."` = '".$value."'";
         }
 
         $query .= " WHERE `order_id` = '" . $order_id . "'";
@@ -45,6 +44,7 @@ class Modelpaymentxendit extends Model
 
     public function cancelOrder($order_id)
     {
-        $this->db->query("UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'CANCELLED', `xendit_cancelled_date` = NOW() WHERE `order_id` = '" . $order_id . "'");
+        $date = gmdate("Y-m-d H:i:s");
+        $this->db->query("UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'CANCELLED', `xendit_cancelled_date` = '".$date."' WHERE `order_id` = '" . $order_id . "'");
     }
 }

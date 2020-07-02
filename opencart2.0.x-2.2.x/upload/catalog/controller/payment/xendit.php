@@ -88,13 +88,14 @@ class Controllerpaymentxendit extends Controller
             $this->load->model('payment/xendit');
             $this->load->model('checkout/order');
 
-            $response = json_decode(file_get_contents('php://input'), true);
-            $invoice_id = $response['id'];
-            $external_id = $response['external_id'];
+            $original_response = json_decode(file_get_contents('php://input'), true);
+            $invoice_id = $original_response['id'];
+            $external_id = $original_response['external_id'];
             $order_id = str_replace(self::EXT_ID_PREFIX, "", $external_id);
-            
+
             if (!is_numeric($order_id)) {
-                $order_id = end(explode( '-', $external_id ));
+                $explodExternalId = explode( '-', $external_id );
+                $order_id = end($explodExternalId);
             }
 
             $order_info = $this->model_checkout_order->getOrder($order_id);
@@ -134,7 +135,7 @@ class Controllerpaymentxendit extends Controller
                     return;
                 }
 
-                return $this->process_order($response, $order_id);
+                return $this->process_order($response, $original_response, $order_id);
             } catch (Exception $e) {
                 echo 'something';
             }
@@ -158,12 +159,20 @@ class Controllerpaymentxendit extends Controller
         }
     }
 
-    private function process_order($response, $order_id)
+    private function process_order($response, $original_response, $order_id)
     {
         if ($response['status'] === 'PAID' || $response['status'] === 'SETTLED') {
             $this->cart->clear();
             $message = 'Payment successful. Invoice id: ' . $response['id'];
-            $this->model_payment_xendit->paidOrder($order_id);
+
+            $feePaid = [];
+            if (isset($original_response['fees_paid_amount'])) {
+                $feePaid = array(
+                    'xendit_invoice_fee' => $original_response['fees_paid_amount']
+                );
+            }
+
+            $this->model_payment_xendit->paidOrder($order_id, $response['paid_at'], $feePaid);
             $this->model_checkout_order->addOrderHistory(
                 $order_id,
                 2,
