@@ -4,7 +4,7 @@ require_once(DIR_SYSTEM . 'library/xendit.php');
 
 class Controllerpaymentxendit extends Controller
 {
-    const EXT_ID_PREFIX = 'xendit_opencart_';
+    const EXT_ID_PREFIX = 'opencart-xendit-';
 
     public function index()
     {
@@ -63,7 +63,7 @@ class Controllerpaymentxendit extends Controller
                 $json['error'] = $response['message'];
             } 
             else {
-                $this->model_payment_xendit->addOrder($order, $response, $this->config->get('xendit_environment'));
+                $this->model_payment_xendit->addOrder($order, $response, $this->config->get('xendit_environment'), 'invoice');
                 $message = 'Invoice ID: ' . $response['id'] . '. Redirecting..';
                 $this->model_checkout_order->addOrderHistory(
                     $order_id,
@@ -158,7 +158,7 @@ class Controllerpaymentxendit extends Controller
         if ($response['status'] === 'PAID' || $response['status'] === 'SETTLED') {
             $this->cart->clear();
             $message = 'Payment successful. Invoice id: ' . $response['id'];
-            $this->model_payment_xendit->completeOrder($order_id);
+            $this->model_payment_xendit->paidOrder($order_id);
             $this->model_checkout_order->addOrderHistory(
                 $order_id,
                 2,
@@ -168,6 +168,7 @@ class Controllerpaymentxendit extends Controller
             $this->response->setOutput($message);
         } else {
             $message = 'Invoice not paid or settled. Cancelling order. Charge id: ' . $response['id'];
+            $this->model_payment_xendit->cancelOrder($order_id);
             return $this->cancel_order($order_id, $message);
         }
     }

@@ -151,7 +151,7 @@ class Controllerpaymentxendit extends Controller
                     'order_number' => $order_id,
                     'amount' => (int)$order['total']
                 );
-    
+
                 $this->model_payment_xendit->expireOrder($order_id);
                 $this->model_payment_xendit->addOrderHistory(
                     $order,
