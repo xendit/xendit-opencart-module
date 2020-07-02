@@ -3,7 +3,7 @@
 require_once(DIR_SYSTEM . 'library/xendit.php');
 
 class ControllerExtensionPaymentXendit extends Controller {
-    const EXT_ID_PREFIX = 'xendit-opencart-';
+    const EXT_ID_PREFIX = 'opencart-xendit-';
 
     public function index() {
         $this->load->language('extension/payment/xendit');
@@ -82,6 +82,11 @@ class ControllerExtensionPaymentXendit extends Controller {
             $invoice_id = $response['id'];
             $external_id = $response['external_id'];
             $order_id = str_replace(self::EXT_ID_PREFIX, "", $external_id);
+
+            if (!is_numeric($order_id)) {
+                $order_id = end(explode( '-', $external_id ));
+            }
+
             $order_info = $this->model_checkout_order->getOrder($order_id);
 
             if (empty($order_info)) {
