@@ -3,6 +3,8 @@
 require_once(DIR_SYSTEM . 'library/xendit.php');
 
 class ControllerExtensionPaymentXenditCC extends Controller {
+    const EXT_ID_PREFIX = 'xendit-opencart-';
+
     public function index() {
         $this->load->language('extension/payment/xenditcc');
 
@@ -31,7 +33,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
 
         $store_name = $this->config->get('config_name');
         $request_payload = array(
-            'external_id' => 'opencart_xendit_' . $order_id,
+            'external_id' => self::EXT_ID_PREFIX . $order_id,
             'token_id' => $this->request->post['token_id'],
             'amount' => (int)$order['total'],
             'return_url' => $this->url->link('extension/payment/xenditcc/process_3ds')
@@ -132,7 +134,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 'token_id' => $token_id,
                 'authentication_id' => $authentication_id,
                 'amount' => $amount,
-                'external_id' => 'opencart_xendit_' . $order_id,
+                'external_id' => self::EXT_ID_PREFIX . $order_id,
             );
 
             $charge = Xendit::request(
