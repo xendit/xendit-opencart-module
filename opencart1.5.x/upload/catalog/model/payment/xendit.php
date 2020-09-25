@@ -27,7 +27,7 @@ class ModelPaymentXendit extends Model
         return $this->db->getLastId();
     }
 
-    public function paidOrder($order_id, $date, $extra = [])
+    public function paidOrder($order_id, $date, $extra = array())
     {
         $date = date("Y-m-d H:i:s", strtotime($date)); 
         $query = "UPDATE `" . DB_PREFIX . "xendit_order` SET `status` = 'PAID', `xendit_paid_date` = '$date'";
