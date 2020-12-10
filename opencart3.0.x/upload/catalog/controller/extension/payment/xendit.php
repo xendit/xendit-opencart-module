@@ -78,43 +78,43 @@ class ControllerExtensionPaymentXendit extends Controller {
             $this->load->model('extension/payment/xendit');
             $this->load->model('checkout/order');
 
-            $original_response = json_decode(file_get_contents('php://input'), true);
-            $invoice_id = $original_response['id'];
-            $external_id = $original_response['external_id'];
-            $order_id = preg_replace('/[^0-9]/', '', $external_id);
-            $order_info = $this->model_checkout_order->getOrder($order_id);
-
-            if (empty($order_info)) {
-                $message = 'Order not found. Order id: ' . $order_id . '.';
-                $this->response->addHeader('HTTP/1.1 404 Not Found');
-                $this->response->setOutput($message);
-                return;
-            }
-
-            $order_status_id = $order_info['order_status_id'];
-
-            $api_key = $this->get_api_key();
-            Xendit::set_secret_key($api_key['secret_key']);
-            $store_name = $this->config->get('config_name');
-            $request_url = '/payment/xendit/invoice/' . $invoice_id;
-            $request_options = array(
-                'store_name' => $store_name
-            );
-
-            // if status is not pending
-            if ($order_status_id != 1) {
-                $message = 'Order status is not pending. Order id: ' . $order_id . '.';
-                $this->response->addHeader('HTTP/1.1 422 Unprocessable Entity');
-                $this->response->setOutput($message);
-                return;
-            }
-
             try {
+                $original_response = json_decode(file_get_contents('php://input'), true);
+                $invoice_id = $original_response['id'];
+
+                $api_key = $this->get_api_key();
+                Xendit::set_secret_key($api_key['secret_key']);
+                $store_name = $this->config->get('config_name');
+                $request_url = '/payment/xendit/invoice/' . $invoice_id;
+                $request_options = array(
+                    'store_name' => $store_name
+                );
                 $response = Xendit::request($request_url, Xendit::METHOD_GET, array(), $request_options);
 
                 if ( isset($response['error_code']) ) {
                     $message = 'Could not get xendit invoice. Invoice id: ' . $invoice_id . '. Cancelling order.';
                     $this->response->addHeader('HTTP/1.1 400 Bad Request');
+                    $this->response->setOutput($message);
+                    return;
+                }
+
+                $external_id = $response['external_id'];
+                $order_id = preg_replace('/[^0-9]/', '', $external_id);
+                $order_info = $this->model_checkout_order->getOrder($order_id);
+
+                if (empty($order_info)) {
+                    $message = 'Order not found. Order id: ' . $order_id . '.';
+                    $this->response->addHeader('HTTP/1.1 404 Not Found');
+                    $this->response->setOutput($message);
+                    return;
+                }
+
+                $order_status_id = $order_info['order_status_id'];
+
+                // if status is not pending
+                if ($order_status_id != 1) {
+                    $message = 'Order status is not pending. Order id: ' . $order_id . '.';
+                    $this->response->addHeader('HTTP/1.1 422 Unprocessable Entity');
                     $this->response->setOutput($message);
                     return;
                 }
