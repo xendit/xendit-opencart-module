@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 2020-12-18
+- Do not show API key on admin page
+
 ## 2020-12-10
 - Improve callback endpoint security to check order number from source of truth
 
