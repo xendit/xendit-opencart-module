@@ -3,6 +3,7 @@
 class ControllerExtensionPaymentXendit extends Controller
 {
     private $error = array();
+    private static $placeholder_sensitive_information = '********';
 
     public function index()
     {
@@ -14,6 +15,16 @@ class ControllerExtensionPaymentXendit extends Controller
         $this->load->model('localisation/order_status');
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+            foreach ($this->request->post as $key => &$value) {
+                if ($value === self::$placeholder_sensitive_information) {
+                    /**
+                     * if value is placeholder, replace with current config value
+                     * 
+                     * To prevent placeholder value stored as config value
+                    */
+                    $value = $this->config->get($key);
+                }
+            }
             $this->model_setting_setting->editSetting('xendit', $this->request->post);
             $this->session->data['success'] = $this->language->get('text_success');
 
@@ -75,7 +86,9 @@ class ControllerExtensionPaymentXendit extends Controller
         if (isset($this->request->post['xendit_test_public_key'])) {
             $data['xendit_test_public_key'] = $this->request->post['xendit_test_public_key'];
         } elseif ($this->config->has('xendit_test_public_key')) {
-            $data['xendit_test_public_key'] = $this->config->get('xendit_test_public_key');
+            $data['xendit_test_public_key'] = $this->config->get('xendit_test_public_key') === '' ?
+                $this->config->get('xendit_test_public_key') :
+                self::$placeholder_sensitive_information;
         } else {
             $data['xendit_test_public_key'] = '';
         }
@@ -83,7 +96,9 @@ class ControllerExtensionPaymentXendit extends Controller
         if (isset($this->request->post['xendit_live_public_key'])) {
             $data['xendit_live_public_key'] = $this->request->post['xendit_live_public_key'];
         } elseif ($this->config->has('xendit_live_public_key')) {
-            $data['xendit_live_public_key'] = $this->config->get('xendit_live_public_key');
+            $data['xendit_live_public_key'] = $this->config->get('xendit_live_public_key') === '' ?
+                $this->config->get('xendit_live_public_key') :
+                self::$placeholder_sensitive_information;
         } else {
             $data['xendit_live_public_key'] = '';
         }
@@ -91,7 +106,9 @@ class ControllerExtensionPaymentXendit extends Controller
         if (isset($this->request->post['xendit_test_secret_key'])) {
             $data['xendit_test_secret_key'] = $this->request->post['xendit_test_secret_key'];
         } elseif ($this->config->has('xendit_test_secret_key')) {
-            $data['xendit_test_secret_key'] = $this->config->get('xendit_test_secret_key');
+            $data['xendit_test_secret_key'] = $this->config->get('xendit_test_secret_key') === '' ?
+                $this->config->get('xendit_test_secret_key') :
+                self::$placeholder_sensitive_information;
         } else {
             $data['xendit_test_secret_key'] = '';
         }
@@ -99,7 +116,9 @@ class ControllerExtensionPaymentXendit extends Controller
         if (isset($this->request->post['xendit_live_secret_key'])) {
             $data['xendit_live_secret_key'] = $this->request->post['xendit_live_secret_key'];
         } elseif ($this->config->has('xendit_live_secret_key')) {
-            $data['xendit_live_secret_key'] = $this->config->get('xendit_live_secret_key');
+            $data['xendit_live_secret_key'] = $this->config->get('xendit_live_secret_key') === '' ?
+                $this->config->get('xendit_live_secret_key') :
+                self::$placeholder_sensitive_information;
         } else {
             $data['xendit_live_secret_key'] = '';
         }
