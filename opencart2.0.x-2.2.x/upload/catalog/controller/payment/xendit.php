@@ -60,8 +60,13 @@ class Controllerpaymentxendit extends Controller
             $response = Xendit::request($request_url, Xendit::METHOD_POST, $request_payload, $request_options);
 
             if (isset($response['error_code'])) {
-                $json['error'] = $response['message'];
-            } 
+                $message = $response['message'];
+
+                if (isset($response['code'])) {
+                    $message .= ". Code: " . $response['code'];
+                }
+                $json['error'] = $message;
+            }
             else {
                 $this->model_payment_xendit->addOrder($order, $response, $this->config->get('xendit_environment'), 'invoice');
                 $message = 'Invoice ID: ' . $response['id'] . '. Redirecting..';
