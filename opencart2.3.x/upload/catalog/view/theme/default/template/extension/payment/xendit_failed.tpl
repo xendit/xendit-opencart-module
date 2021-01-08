@@ -2,6 +2,7 @@
 <div class="container"><?php echo $content_top; ?>
     <h2 class="text-center">Xendit payment failed!</h2>
     <p class="text-center"><?php echo $text_failure; ?></p>
+    <p class="text-center"><?php echo $message; ?></p>
     <a href="<?php echo $checkout_url; ?>">
         <div class="text-center">
             <button class="btn btn-primary">Back to cart</button>

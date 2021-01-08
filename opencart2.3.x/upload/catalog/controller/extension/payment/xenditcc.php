@@ -10,12 +10,10 @@ class ControllerExtensionPaymentXenditCC extends Controller {
 
         $api_key = $this->get_api_key();
 
-        $data['environment'] = $this->config->get('xendit_environment');
+        $data['environment'] = $this->config->get('payment_xendit_environment');
         $data['text_instructions'] = $this->language->get('text_instructions');
         $data['text_test_instructions'] = $this->language->get('text_test_instructions');
         $data['xendit_public_key'] = $api_key['public_key'];
-		$data['button_confirm'] = $this->language->get('button_confirm');
-		$data['text_loading'] = $this->language->get('text_loading');
 
         return $this->load->view('extension/payment/xenditcc', $data);
     }
@@ -52,9 +50,16 @@ class ControllerExtensionPaymentXenditCC extends Controller {
             $response = Xendit::request($request_url, Xendit::METHOD_POST, $request_payload, $request_options);
 
             if (isset($response['error_code'])) {
-                $json['error'] = 'Failed to authenticate, please try again.';
+                $message = $response['message'];
+
+                if (isset($response['code'])) {
+                    $message .= ". Code: " . $response['code'];
+                }
+                $json['error'] = $message;
             }
             else {
+                $response['external_id'] = $request_payload['external_id']; //original response doesn't return external_id
+                
                 $message = 'Authentication ID: ' . $response['id'] . '. Authenticating..';
                 $this->model_checkout_order->addOrderHistory(
                     $order_id,
@@ -66,7 +71,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
 
                 $json['redirect'] = $response['redirect']['url'];
             }
-
+            
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode($json));
         } catch (Exception $e) {
@@ -89,10 +94,10 @@ class ControllerExtensionPaymentXenditCC extends Controller {
             Xendit::set_public_key($api_key['public_key']);
 
             if (!isset($this->request->get['hosted_3ds_id'])) {
-                $message = 'Empty authentication. Cancelling order.';
+                $message = $this->map_failure_reason('AUTHENTICATION_FAILED');
                 $this->cancel_order($order_id, $message);
 
-                $redir_url = $this->url->link('extension/payment/xenditcc/failure');
+                $redir_url = $this->url->link('extension/payment/xenditcc/failure/?message=' . urlencode($message));
                 $this->response->redirect($redir_url);
                 return;
             }
@@ -110,16 +115,19 @@ class ControllerExtensionPaymentXenditCC extends Controller {
             );
 
             if (isset($hosted_3ds['error_code'])) {
-                $redir_url = $this->url->link('extension/payment/xenditcc/failure');
+                $message = $this->map_failure_reason('AUTHENTICATION_FAILED');
+                $this->cancel_order($order_id, $message);
+
+                $redir_url = $this->url->link('extension/payment/xenditcc/failure/?message=' . urlencode($message));
                 $this->response->redirect($redir_url);
                 return;
             }
 
             if ('VERIFIED' !== $hosted_3ds['status']) {
-                $message = 'Authentication failed. Cancelling order.';
+                $message = $this->map_failure_reason('AUTHENTICATION_FAILED');
                 $this->cancel_order($order_id, $message);
 
-                $redir_url = $this->url->link('extension/payment/xenditcc/failure');
+                $redir_url = $this->url->link('extension/payment/xenditcc/failure/?message=' . urlencode($message));
                 $this->response->redirect($redir_url);
                 return;
             }
@@ -145,6 +153,19 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 )
             );
 
+            if (isset($charge['error_code'])) {
+                $message = $charge['message'];
+
+                if (isset($charge['code'])) {
+                    $message .= ". Code: " . $charge['code'];
+                }
+                $this->cancel_order($order_id, $message);
+
+                $redir_url = $this->url->link('extension/payment/xenditcc/failure/?message=' . urlencode($message));
+                $this->response->redirect($redir_url);
+                return;
+            }
+
             $this->process_order($charge, $order_id);
         } catch (Exception $e) {
             $redir_url = $this->url->link('extension/payment/xenditcc/failure');
@@ -159,6 +180,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
         $this->document->setTitle($this->language->get('heading_title'));
         $data['heading_title'] = $this->language->get('heading_title');
         $data['text_failure'] = $this->language->get('text_failure');
+        $data['message'] = isset($this->request->get['message']) ? $this->request->get['message'] : 'We encountered an issue while processing the checkout. Please contact us. Code: 100007';
 
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['column_right'] = $this->load->controller('common/column_right');
@@ -173,10 +195,10 @@ class ControllerExtensionPaymentXenditCC extends Controller {
 
     private function process_order($charge, $order_id) {
         if ($charge['status'] !== 'CAPTURED') {
-            $message = 'Charge failed. Cancelling order. Charge id: ' . $charge['id'];
+            $message = $this->map_failure_reason($charge['failure_reason']);
             $this->cancel_order($order_id, $message);
 
-            $redir_url = $this->url->link('extension/payment/xenditcc/failure');
+            $redir_url = $this->url->link('extension/payment/xenditcc/failure/?message=' . urlencode($message));
             $this->response->redirect($redir_url);
             return;
         }
@@ -219,6 +241,31 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 'secret_key' => $this->config->get('xendit_test_secret_key'),
                 'public_key' => $this->config->get('xendit_test_public_key')
             );
+        }
+    }
+
+    private function map_failure_reason($failure_reason) {
+        $card_declined_reason = 'Card declined by the issuer bank. Please try with another card or contact the bank directly.';
+        switch ($failure_reason) {
+            case 'CARD_DECLINED':
+                return $card_declined_reason . ' Code: 200011';
+            case 'STOLEN_CARD':
+                return $card_declined_reason . ' Code: 200013';
+            case 'INSUFFICIENT_BALANCE':
+                return 'Card declined due to insufficient balance. Ensure sufficient balance is available, or try another card. Code: 200012';
+            case 'INVALID_CVN':
+                return 'Card declined due to incorrect card details. Please try again. Code: 200015';
+            case 'INACTIVE_CARD':
+                return $card_declined_reason . ' Code: 200014';
+            case 'EXPIRED_CARD':
+                return 'Card declined due to expiration. Please try again with another card. Code: 200010';
+            case 'PROCESSOR_ERROR':
+                return 'We encountered an issue while processing the checkout. Please try again. Code: 200009';
+            case 'AUTHENTICATION_FAILED':
+                return 'The authentication process failed. Please try again. Code: 200001';
+            case 'UNEXPECTED_PLUGIN_ISSUE':
+                return 'We encountered an issue processing your checkout, please contact us. Code: 100007';
+            default: return $failure_reason;
         }
     }
 }
