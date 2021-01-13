@@ -54,7 +54,7 @@ class ControllerPaymentXendit extends Controller {
                 $message = $response['message'];
 
                 if (isset($response['code'])) {
-                    $message .= ". Code: " . $response['code'];
+                    $message .= " Code: " . $response['code'];
                 }
                 $json['error'] = $message;
             }

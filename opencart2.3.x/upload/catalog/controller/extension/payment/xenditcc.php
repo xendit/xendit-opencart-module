@@ -53,7 +53,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 $message = $response['message'];
 
                 if (isset($response['code'])) {
-                    $message .= ". Code: " . $response['code'];
+                    $message .= " Code: " . $response['code'];
                 }
                 $json['error'] = $message;
             }
@@ -157,7 +157,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 $message = $charge['message'];
 
                 if (isset($charge['code'])) {
-                    $message .= ". Code: " . $charge['code'];
+                    $message .= " Code: " . $charge['code'];
                 }
                 $this->cancel_order($order_id, $message);
 
