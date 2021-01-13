@@ -16,7 +16,7 @@ class Xendit {
     /**
      * Xendit API Endpoint
      */
-    const ENDPOINT = 'https://tpi.xendit.co';
+    const ENDPOINT = 'https://tpi-dev.xendit.co';
     const PLUGIN_NAME = 'OPENCART';
     const DEFAULT_STORE_NAME = 'XENDIT_OPENCART_STORE';
 

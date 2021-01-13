@@ -4,6 +4,7 @@ require_once(DIR_SYSTEM . 'library/xendit.php');
 
 class ControllerPaymentXendit extends Controller {
     const EXT_ID_PREFIX = 'opencart-xendit-';
+    const MINIMUM_AMOUNT = 10000;
 
     public function index() {
         $this->load->language('payment/xendit');
@@ -32,9 +33,18 @@ class ControllerPaymentXendit extends Controller {
         Xendit::set_public_key($api_key['public_key']);
 
         $store_name = $this->config->get('config_name');
+        $amount = (int)$order['total'];
+
+        if ($amount < self::MINIMUM_AMOUNT) {
+            $json['error'] = 'The minimum amount for using this payment is IDR ' . self::MINIMUM_AMOUNT . '. Please put more item(s) to reach the minimum amount. Code: 100001';
+
+            $this->response->addHeader('Content-Type: application/json');
+            return $this->response->setOutput(json_encode($json));
+        }
+
         $request_payload = array(
             'external_id' => self::EXT_ID_PREFIX . $order_id,
-            'amount' => (int)$order['total'],
+            'amount' => $amount,
             'payer_email' => $order['email'],
             'description' => 'Payment for order #' . $order_id . ' at ' . $store_name,
             'client_type' => 'INTEGRATION',

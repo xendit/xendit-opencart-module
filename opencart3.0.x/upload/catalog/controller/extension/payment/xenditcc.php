@@ -4,6 +4,7 @@ require_once(DIR_SYSTEM . 'library/xendit.php');
 
 class ControllerExtensionPaymentXenditCC extends Controller {
     const EXT_ID_PREFIX = 'opencart-xendit-';
+    const MINIMUM_AMOUNT = 5000;
 
     public function index() {
         $this->load->language('extension/payment/xenditcc');
@@ -30,10 +31,19 @@ class ControllerExtensionPaymentXenditCC extends Controller {
         );
 
         $store_name = $this->config->get('config_name');
+        $amount = (int)$order['total'];
+
+        if ($amount < self::MINIMUM_AMOUNT) {
+            $json['error'] = 'The minimum amount for using this payment is IDR ' . self::MINIMUM_AMOUNT . '. Please put more item(s) to reach the minimum amount. Code: 100001';
+
+            $this->response->addHeader('Content-Type: application/json');
+            return $this->response->setOutput(json_encode($json));
+        }
+
         $request_payload = array(
             'external_id' => self::EXT_ID_PREFIX . $order_id,
             'token_id' => $this->request->post['token_id'],
-            'amount' => (int)$order['total'],
+            'amount' => $amount,
             'return_url' => $this->url->link('extension/payment/xenditcc/process_3ds')
         );
         $request_url = '/payment/xendit/credit-card/hosted-3ds';
