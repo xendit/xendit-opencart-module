@@ -104,11 +104,40 @@
             is_multiple_use: true
         };
 
+        if (!data.card_number || !data.card_cvn || !data.card_exp_month || !data.card_exp_year) {
+            buttonConfirm.button('reset');
+
+            alert('Card information is incomplete. Please complete it and try again. Code: 200034');
+            return;
+        }
+        
+        if (!Xendit.card.validateCardNumber(data.card_number)) {
+            buttonConfirm.button('reset');
+
+            alert('Invalid Card Number. Please make sure the card is Visa / Mastercard / JCB. Code: 200030');
+            return;
+        }
+
+        if (!Xendit.card.validateCvnForCardType(data.card_cvn, data.card_number)) {
+            buttonConfirm.button('reset');
+
+            alert('The CVC/CVN that you entered is less than 3 digits. Please enter the correct value and try again. Code: 200032');
+            return;
+        }
+
+        if (!Xendit.card.validateExpiry(data.card_exp_month, data.card_exp_year)) {
+            buttonConfirm.button('reset');
+
+            alert('The card expiry that you entered does not meet the expected format. Please try again by entering the 2 digits of the month (MM) and the last 2 digits of the year (YY). Code: 200031');
+            return;
+        }
+
+
         Xendit.card.createToken(data, function (err, response) {
             if (err) {
                 buttonConfirm.button('reset');
 
-                alert('Tokenization error. Error code:' + err.error_code);
+                alert('We encountered an issue while processing the checkout. Please contact us. Code: 200035');
                 return;
             }
 
