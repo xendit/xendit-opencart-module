@@ -107,7 +107,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 $message = $this->map_failure_reason('AUTHENTICATION_FAILED');
                 $this->cancel_order($order_id, $message);
 
-                $redir_url = $this->url->link('extension/payment/xenditcc/failure/?message=' . urlencode($message));
+                $redir_url = $this->url->link('extension/payment/xenditcc/failure', 'message=' . urlencode($message), 'SSL');
                 $this->response->redirect($redir_url);
                 return;
             }
@@ -128,7 +128,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 $message = $this->map_failure_reason('AUTHENTICATION_FAILED');
                 $this->cancel_order($order_id, $message);
 
-                $redir_url = $this->url->link('extension/payment/xenditcc/failure/?message=' . urlencode($message));
+                $redir_url = $this->url->link('extension/payment/xenditcc/failure', 'message=' . urlencode($message), 'SSL');
                 $this->response->redirect($redir_url);
                 return;
             }
@@ -137,7 +137,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 $message = $this->map_failure_reason('AUTHENTICATION_FAILED');
                 $this->cancel_order($order_id, $message);
 
-                $redir_url = $this->url->link('extension/payment/xenditcc/failure/?message=' . urlencode($message));
+                $redir_url = $this->url->link('extension/payment/xenditcc/failure', 'message=' . urlencode($message), 'SSL');
                 $this->response->redirect($redir_url);
                 return;
             }
@@ -171,7 +171,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
                 }
                 $this->cancel_order($order_id, $message);
 
-                $redir_url = $this->url->link('extension/payment/xenditcc/failure/?message=' . urlencode($message));
+                $redir_url = $this->url->link('extension/payment/xenditcc/failure', 'message=' . urlencode($message), 'SSL');
                 $this->response->redirect($redir_url);
                 return;
             }
@@ -208,7 +208,7 @@ class ControllerExtensionPaymentXenditCC extends Controller {
             $message = $this->map_failure_reason($charge['failure_reason']);
             $this->cancel_order($order_id, $message);
 
-            $redir_url = $this->url->link('extension/payment/xenditcc/failure/?message=' . urlencode($message));
+            $redir_url = $this->url->link('extension/payment/xenditcc/failure', 'message=' . urlencode($message), 'SSL');
             $this->response->redirect($redir_url);
             return;
         }
