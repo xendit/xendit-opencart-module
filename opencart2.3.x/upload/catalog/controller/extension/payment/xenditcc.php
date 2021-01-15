@@ -15,6 +15,8 @@ class ControllerExtensionPaymentXenditCC extends Controller {
         $data['text_instructions'] = $this->language->get('text_instructions');
         $data['text_test_instructions'] = $this->language->get('text_test_instructions');
         $data['xendit_public_key'] = $api_key['public_key'];
+		$data['button_confirm'] = $this->language->get('button_confirm');
+		$data['text_loading'] = $this->language->get('text_loading');
 
         return $this->load->view('extension/payment/xenditcc', $data);
     }
