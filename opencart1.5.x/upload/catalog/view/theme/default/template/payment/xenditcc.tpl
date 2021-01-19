@@ -87,17 +87,31 @@
             is_multiple_use: true
         };
 
-        // Validation
-        if (data.card_number == '') {
-            alert('Please fill in Credit Card Number.');
+        if (!data.card_number || !data.card_cvn || !data.card_exp_month || !data.card_exp_year) {
+            buttonConfirm.attr('disabled', false);
+
+            alert('Card information is incomplete. Please complete it and try again. Code: 200034');
             return;
         }
-        if (expMonth == '' || expYear == '') {
-            alert('Please fill in Card Expiry Month & Year.');
+        
+        if (!Xendit.card.validateCardNumber(data.card_number)) {
+            buttonConfirm.attr('disabled', false);
+
+            alert('Invalid Card Number. Please make sure the card is Visa / Mastercard / JCB. Code: 200030');
             return;
         }
-        if (data.card_cvn == '') {
-            alert('Please fill in CVN.');
+
+        if (!Xendit.card.validateCvnForCardType(data.card_cvn, data.card_number)) {
+            buttonConfirm.attr('disabled', false);
+
+            alert('The CVC/CVN that you entered is less than 3 digits. Please enter the correct value and try again. Code: 200032');
+            return;
+        }
+
+        if (!Xendit.card.validateExpiry(data.card_exp_month, data.card_exp_year)) {
+            buttonConfirm.attr('disabled', false);
+
+            alert('The card expiry that you entered does not meet the expected format. Please try again by entering the 2 digits of the month (MM) and the last 2 digits of the year (YY). Code: 200031');
             return;
         }
 
@@ -107,7 +121,7 @@
             if (err) {
                 buttonConfirm.attr('disabled', false);
 
-                alert('Tokenization error. Error code:' + err.error_code);
+                alert('We encountered an issue while processing the checkout. Please contact us. Code: 200035');
                 return;
             }
 
