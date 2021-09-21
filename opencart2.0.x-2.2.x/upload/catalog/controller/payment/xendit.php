@@ -6,6 +6,8 @@ class Controllerpaymentxendit extends Controller
 {
     const EXT_ID_PREFIX = 'opencart-xendit-';
     const MINIMUM_AMOUNT = 10000;
+    const MINIMUM_AMOUNT_CC = 5000;
+    const MAXIMUM_AMOUNT_CC = 200000000;
 
     public function index()
     {
@@ -42,11 +44,17 @@ class Controllerpaymentxendit extends Controller
         Xendit::set_public_key($api_key['public_key']);
 
         $store_name = $this->config->get('config_name');
-        $amount = (int)$order['total'];
+        $invoice_hash = strtolower($_POST['invoice_hash']);
 
-        if ($amount < self::MINIMUM_AMOUNT) {
-            $json['error'] = 'The minimum amount for using this payment is IDR ' . self::MINIMUM_AMOUNT . '. Please put more item(s) to reach the minimum amount. Code: 100001';
+        if ($invoice_hash != 'credit_card' && $amount < self::MINIMUM_AMOUNT) {
+            $json['error'] = 'The minimum amount for using this payment is IDR ' . number_format(self::MINIMUM_AMOUNT) . '. Please put more item(s) to reach the minimum amount. Code: 100001';
+        } else if ($invoice_hash == 'credit_card' && $amount < self::MINIMUM_AMOUNT_CC) {
+            $json['error'] = 'The minimum amount for using this payment is IDR ' . number_format(self::MINIMUM_AMOUNT_CC) . '. Please put more item(s) to reach the minimum amount. Code: 100001';
+        } else if ($invoice_hash == 'credit_card' && $amount > self::MAXIMUM_AMOUNT_CC) {
+            $json['error'] = 'The maximum amount for using this payment is IDR ' . number_format(self::MAXIMUM_AMOUNT_CC) . '. Maximum amount exceeded. Code: 100001';
+        }
 
+        if (isset($json['error'])) {
             $this->response->addHeader('Content-Type: application/json');
             return $this->response->setOutput(json_encode($json));
         }

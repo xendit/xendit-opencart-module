@@ -26,6 +26,8 @@
         $.ajax({
             url: 'index.php?route=payment/xendit/process_payment',
             dataType: 'json',
+            type: 'POST',
+            data: { invoice_hash: $('#invoice-hash').val() },
             beforeSend: function() {
                 $('#button-confirm').attr('disabled', true);
             },
