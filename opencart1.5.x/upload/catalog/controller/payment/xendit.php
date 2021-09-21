@@ -36,14 +36,14 @@ class ControllerPaymentXendit extends Controller {
 
         $store_name = $this->config->get('config_name');
         $amount = (int)$order['total'];
-        $invoice_hash = $_POST['invoice_hash'];
+        $invoice_hash = strtolower($_POST['invoice_hash']);
 
         if ($invoice_hash != 'credit_card' && $amount < self::MINIMUM_AMOUNT) {
-            $json['error'] = 'The minimum amount for using this payment is IDR ' . self::MINIMUM_AMOUNT . '. Please put more item(s) to reach the minimum amount. Code: 100001';
+            $json['error'] = 'The minimum amount for using this payment is IDR ' . number_format(self::MINIMUM_AMOUNT) . '. Please put more item(s) to reach the minimum amount. Code: 100001';
         } else if ($invoice_hash == 'credit_card' && $amount < self::MINIMUM_AMOUNT_CC) {
-            $json['error'] = 'The minimum amount for using this payment is IDR 5,000. Please put more item(s) to reach the minimum amount. Code: 100001';
+            $json['error'] = 'The minimum amount for using this payment is IDR ' . number_format(self::MINIMUM_AMOUNT_CC) . '. Please put more item(s) to reach the minimum amount. Code: 100001';
         } else if ($invoice_hash == 'credit_card' && $amount > self::MAXIMUM_AMOUNT_CC) {
-            $json['error'] = 'The maximum amount for using this payment is IDR 200,000,000. Maximum amount exceeded. Code: 100001';
+            $json['error'] = 'The maximum amount for using this payment is IDR ' . number_format(self::MAXIMUM_AMOUNT_CC) . '. Maximum amount exceeded. Code: 100001';
         }
 
         if (isset($json['error'])) {
