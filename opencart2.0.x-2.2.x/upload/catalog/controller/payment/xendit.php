@@ -44,6 +44,7 @@ class Controllerpaymentxendit extends Controller
         Xendit::set_public_key($api_key['public_key']);
 
         $store_name = $this->config->get('config_name');
+        $amount = (int)$order['total'];
         $invoice_hash = strtolower($_POST['invoice_hash']);
 
         if ($invoice_hash != 'credit_card' && $amount < self::MINIMUM_AMOUNT) {
