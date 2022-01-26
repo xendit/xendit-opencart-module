@@ -1,11 +1,11 @@
 <div class="row">
     <?php if ($environment == 'test') { ?>
     <div class="col-md-12">
-        <p class="test_instructions"><? echo $text_test_instructions; ?></p>
+        <p class="test_instructions"><?php echo $text_test_instructions; ?></p>
     </div>
     <?php } ?>
     <div class="col-md-12">
-        <p class="instructions"><? echo $text_instructions; ?></p>
+        <p class="instructions"><?php echo $text_instructions; ?></p>
     </div>
 </div>
 
@@ -13,16 +13,16 @@
         type="hidden"
         id="invoice-hash"
         name="invoice-hash"
-        value="<? echo $invoice_hash; ?>"
+        value="<?php echo $invoice_hash; ?>"
 />
 
 <div class="buttons">
     <div class="pull-right">
         <input
                 type="button"
-                value="<? echo $button_confirm; ?>"
+                value="<?php echo $button_confirm; ?>"
                 id="button-confirm"
-                data-loading-text="<? echo $text_loading; ?>"
+                data-loading-text="<?php echo $text_loading; ?>"
                 class="btn btn-primary"
         />
     </div>
