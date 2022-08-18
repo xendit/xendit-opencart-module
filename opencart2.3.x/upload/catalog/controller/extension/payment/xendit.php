@@ -18,6 +18,43 @@ class ControllerExtensionPaymentXendit extends Controller {
         return $this->load->view('extension/payment/xendit', $data);
     }
 
+    /**
+     * @param $order
+     * @return array
+     */
+    protected function extract_customer_address_object($order): array
+    {
+        $customer_address = [
+            'street_line1' => $order['payment_address_1'] ?? '',
+            'street_line2' => $order['payment_address_2'] ?? '',
+            'state' => $order['payment_zone'] ?? '',
+            'postal_code' => $order['payment_postcode'] ?? '',
+            'city' => $order['payment_city'] ?? '',
+            'country' => $order['payment_iso_code_2'] ?? ''
+        ];
+
+        return array_filter($customer_address);
+    }
+
+    /**
+     * @param $order
+     * @return array
+     */
+    protected function extract_customer_object($order): array
+    {
+        $customer = [
+            'email' => $order['email'] ?? '',
+            'given_names' => $order['payment_firstname'] ?? '',
+            'surname' => $order['payment_lastname'] ?? '',
+            'mobile_number' => $order['telephone'] ?? '',
+        ];
+        $address = $this->extract_customer_address_object($order);
+        if(!empty($address)){
+            $customer['addresses'] = [$address];
+        }
+        return array_filter($customer);
+    }
+
     public function process_payment() {
         $this->load->model('extension/payment/xendit');
         $this->load->model('checkout/order');
@@ -61,6 +98,12 @@ class ControllerExtensionPaymentXendit extends Controller {
             'failure_redirect_url' => $this->url->link('checkout/cart'),
             'platform_callback_url' => $this->url->link('extension/payment/xendit/process_notification')
         );
+
+        $customer_object = $this->extract_customer_object($order);
+        if(!empty($customer_object)){
+            $request_payload['customer'] = $customer_object;
+        }
+
         $request_url = '/payment/xendit/invoice';
         $request_options = array(
             'store_name' => $store_name
