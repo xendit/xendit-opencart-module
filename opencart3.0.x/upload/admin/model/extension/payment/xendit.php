@@ -39,8 +39,15 @@ class ModelExtensionPaymentXendit extends Model {
 			$this->db->query("UPDATE `" . DB_PREFIX . "order` SET order_status_id = '" . (int)$order_status_id . "', date_modified = NOW() WHERE order_id = '" . (int)$order_id . "'");
 			$this->db->query("INSERT INTO " . DB_PREFIX . "order_history SET order_id = '" . (int)$order_id . "', order_status_id = '" . (int)$order_status_id . "', notify = '" . (int)false . "', comment = '" . $this->db->escape($comment) . "', date_added = NOW()");
 			$order_history_id = $this->db->getLastId();
-			
+
 			return $order_history_id;
 		}
 	}
+
+    public function removePermission($payment_method = ''){
+        // Remove permission when uninstall
+        $this->load->model('user/user_group');
+        $this->model_user_user_group->removePermission($this->user->getGroupId(), 'access', 'extension/payment/xendit'. $payment_method);
+        $this->model_user_user_group->removePermission($this->user->getGroupId(), 'modify', 'extension/payment/xendit'. $payment_method);
+    }
 }
