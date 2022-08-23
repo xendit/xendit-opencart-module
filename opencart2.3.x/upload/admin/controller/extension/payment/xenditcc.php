@@ -2,6 +2,7 @@
 
 class ControllerExtensionPaymentXenditCC extends Controller {
     private $error = array();
+    const XENDIT_CODE = 'cc';
 
     public function index() {
         $this->load->model('setting/setting');
@@ -69,5 +70,10 @@ class ControllerExtensionPaymentXenditCC extends Controller {
 		}
 
 		return !$this->error;
+    }
+
+    public function uninstall() {
+        $this->load->model('extension/payment/xendit');
+        $this->model_extension_payment_xendit->removePermission(self::XENDIT_CODE);
     }
 }
