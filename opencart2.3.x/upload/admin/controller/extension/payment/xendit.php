@@ -19,7 +19,7 @@ class ControllerExtensionPaymentXendit extends Controller
                 if ($value === self::$placeholder_sensitive_information) {
                     /**
                      * if value is placeholder, replace with current config value
-                     * 
+                     *
                      * To prevent placeholder value stored as config value
                     */
                     $value = $this->config->get($key);
@@ -141,6 +141,9 @@ class ControllerExtensionPaymentXendit extends Controller
     {
         $this->load->model('extension/payment/xendit');
         $this->model_extension_payment_xendit->uninstall();
+
+        // Remove permission
+        $this->model_extension_payment_xendit->removePermission();
     }
 
     public function validate()

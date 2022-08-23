@@ -67,4 +67,9 @@ class ControllerExtensionPaymentXenditPermataVA extends Controller {
     public function validate() {
         return true;
     }
+
+    public function uninstall() {
+        $this->load->model('extension/payment/xendit');
+        $this->model_extension_payment_xendit->removePermission(self::XENDIT_CODE);
+    }
 }
