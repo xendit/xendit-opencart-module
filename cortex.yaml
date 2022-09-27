@@ -5,6 +5,7 @@ info:
   x-cortex-git:
     github:
       repository: xendit/xendit-opencart-module
+  x-cortex-tag: xendit-opencart-module
   x-cortex-owners:
   - type: GROUP
     name: xendit/tpi-dev
