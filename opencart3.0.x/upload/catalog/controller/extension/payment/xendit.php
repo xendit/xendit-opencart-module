@@ -136,6 +136,12 @@ class ControllerExtensionPaymentXendit extends Controller {
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode($json));
         } catch (Exception $e) {
+            Xendit::request('/log/metrics/count', Xendit::METHOD_POST, array(
+                'name' => 'opencart_checkout',
+                'additional_tags' => array(
+                    'type' => 'error'
+                )
+            ));
             echo $e->getMessage();
         }
     }
